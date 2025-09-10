@@ -1,4 +1,5 @@
 import { registerUser, loginUser, recoverPassword } from "../services/userService.js";
+import { createTask } from "../services/taskService.js";
 
 const app = document.getElementById("app");
 
@@ -76,6 +77,10 @@ function initLogin() {
         password: passInput.value.trim(),
       });
       console.log("The login has succeeded!!!", response);
+      if (response.user) {
+    localStorage.setItem('currentUser', JSON.stringify(response.user));
+    localStorage.setItem('isLoggedIn', 'true');
+  }
 
       // msg.textContent = "Login successful!";
       setTimeout(() => (location.hash = "#/dashboard"), 400);
@@ -156,33 +161,73 @@ function initDashboard() {
 
   if (!form || !list) return;
 
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const title = document.getElementById("title").value.trim();
-    const detail = document.getElementById("detail").value.trim();
-    const date = document.getElementById("date").value;
-    const time = document.getElementById("time").value;
-    const status = document.getElementById("status").value;
+    try {
+    const TaskData = {
+      title : document.getElementById("title").value.trim(),
+      description : document.getElementById("detail").value.trim(),
+      date : document.getElementById("date").value,
+      time : document.getElementById("time").value,
+      status : document.getElementById("status").value,
 
-    if (!title) return;
+      };
+    await createTask(TaskData)
+    console.log("Succesfully created task")
+    } catch(err){
+      console.log("Something went wrong :(", err.message)
+    }
 
-    const taskItem = document.createElement("div");
-    taskItem.className = "task";
-    taskItem.innerHTML = `
-      <h3>${title}</h3>
-      <p>${detail}</p>
-      <small>${date} ${time}</small>
-      <span>Status: ${status}</span>
-      <button class="removeBtn">Delete</button>
-    `;
+    // if (!title) return;
 
-    list.prepend(taskItem);
+    // const taskItem = document.createElement("div");
+    // taskItem.className = "task";
+    // taskItem.innerHTML = `
+    //   <h3>${title}</h3>
+    //   <p>${detail}</p>
+    //   <small>${date} ${time}</small>
+    //   <span>Status: ${status}</span>
+    //   <button class="removeBtn">Delete</button>
+    // `;
+
+    // list.prepend(taskItem);
     form.reset();
 
     // Delete task
-    taskItem.querySelector(".removeBtn").addEventListener("click", () => {
-      taskItem.remove();
-    });
+    // taskItem.querySelector(".removeBtn").addEventListener("click", () => {
+    //   taskItem.remove();
+    // });
   });
+}
+
+/**
+ * Get the currently logged-in user
+ * @returns {Object|null} User object or null if not logged in
+ */
+export function getCurrentUser() {
+  try {
+    const userStr = localStorage.getItem('currentUser');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+    return null;
+  }
+}
+
+/**
+ * Check if user is logged in
+ * @returns {boolean} True if user is logged in
+ */
+export function isLoggedIn() {
+  return localStorage.getItem('isLoggedIn') === 'true';
+}
+
+/**
+ * Logout user
+ */
+export function logout() {
+  localStorage.removeItem('currentUser');
+  localStorage.removeItem('isLoggedIn');
+  location.hash = '#/login';
 }
