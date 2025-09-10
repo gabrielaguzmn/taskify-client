@@ -1,22 +1,131 @@
-<div class="dashboard">
-  <nav class="navbar">
-    <a href="#/dashboard">Dashboard</a>
-    <a href="#/login" id="logoutBtn">Logout</a>
-  </nav>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="../styles/dashboard.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="app-title">Taskify</h1>
+    <button id="openModal" class="btn-primary">+ Add Task</button>
+  </header>
 
-  <h2>Task Dashboard</h2>
-  <form id="taskForm">
-    <input type="text" id="title" placeholder="Task title" required />
-    <textarea id="detail" placeholder="Task detail"></textarea>
-    <input type="date" id="date" required />
-    <input type="time" id="time" required />
-    <select id="status">
-      <option value="to do">To Do</option>
-      <option value="doing">Doing</option>
-      <option value="done">Done</option>
-    </select>
-    <button type="submit">Add Task</button>
-  </form>
+  <main class="content">
+    
+    <p class="empty-hint">No tasks yet. Click <strong>Add Task</strong> to create one.</p>
+  </main>
 
-  <div id="taskList"></div>
-</div>
+  
+  <div id="taskModal" class="overlay" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header class="modal-header">
+        <h2 id="modalTitle">Add New Task</h2>
+        <button id="closeModal" class="icon-btn" aria-label="Close">&times;</button>
+      </header>
+
+      <div class="modal-body">
+        <form id="taskForm" autocomplete="off">
+          <div class="field-row">
+            <label for="title">Title</label>
+            <input id="title" name="title" type="text" placeholder=" " required />
+          </div>
+
+          <div class="field-row">
+            <label for="description">Description</label>
+            <input id="description" name="description" type="text" placeholder=" " />
+          </div>
+
+          <div class="field-row">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="select">
+              <option value="to do">To do</option>
+              <option value="doing">Doing</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+
+          <div class="when">
+            <div class="group">
+              <div class="icon-circle" aria-hidden="true">
+                
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="4" width="18" height="17" rx="2"></rect>
+                  <line x1="3" y1="9" x2="21" y2="9"></line>
+                  <line x1="8" y1="2.5" x2="8" y2="6"></line>
+                  <line x1="16" y1="2.5" x2="16" y2="6"></line>
+                </svg>
+              </div>
+              <input class="seg" id="day"  name="day"  inputmode="numeric" maxlength="2" placeholder="DD" />
+              <input class="seg" id="month"name="month"inputmode="numeric" maxlength="2" placeholder="MM" />
+              <input class="seg" id="year" name="year" inputmode="numeric" maxlength="4" placeholder="YY" />
+            </div>
+
+            <div class="group">
+              <div class="icon-circle" aria-hidden="true">
+                
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M12 7v5l3 2"></path>
+                </svg>
+              </div>
+              <input class="seg" id="hour"   name="hour"   inputmode="numeric" maxlength="2" placeholder="HH" />
+              <input class="seg" id="minute" name="minute" inputmode="numeric" maxlength="2" placeholder="MM" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn-cta">Save</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Abrir / cerrar modal (JS mínimo)
+    const open = document.getElementById('openModal');
+    const close = document.getElementById('closeModal');
+    const modal = document.getElementById('taskModal');
+
+    const toggle = (show) => {
+      modal.classList.toggle('open', show);
+      modal.setAttribute('aria-hidden', show ? 'false' : 'true');
+      if(show) document.getElementById('title').focus();
+    };
+
+    open.addEventListener('click', () => toggle(true));
+    close.addEventListener('click', () => toggle(false));
+    modal.addEventListener('click', (e) => {
+      if(e.target === modal) toggle(false); // cerrar al click fuera
+    });
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') toggle(false);
+    });
+  </script>
+</body>
+</html>
+
+//<div class="dashboard">
+//  <nav class="navbar">
+//    <a href="#/dashboard">Dashboard</a>
+//    <a href="#/login" id="logoutBtn">Logout</a>
+//  </nav>
+//
+//  <h2>Task Dashboard</h2>
+//  <form id="taskForm">
+//    <input type="text" id="title" placeholder="Task title" required />
+//    <textarea id="detail" placeholder="Task detail"></textarea>
+//    <input type="date" id="date" required />
+//    <input type="time" id="time" required />
+//    <select id="status">
+//      <option value="to do">To Do</option>
+//      <option value="doing">Doing</option>
+//      <option value="done">Done</option>
+//    </select>
+//    <button type="submit">Add Task</button>
+//  </form>
+//
+//  <div id="taskList"></div>
+// </div>
