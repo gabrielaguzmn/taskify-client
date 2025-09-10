@@ -29,11 +29,10 @@ body{
   background:#111; color:#fff; font-weight:600;
 }
 
-/* Contenido vacío (placeholder) */
 .content{ padding:24px }
 .empty-hint{ color:var(--muted) }
 
-/* Overlay + modal */
+
 .overlay{
   position:fixed; inset:0; background:rgba(0,0,0,.25);
   display:none; align-items:center; justify-content:center;
@@ -63,7 +62,6 @@ body{
   padding:26px 24px 38px;
 }
 
-/* Formulario */
 #taskForm{
   max-width:820px; margin:0 auto; display:grid; gap:20px;
 }
@@ -76,7 +74,6 @@ body{
   border:1px solid #cfcfcf; background:#fff; outline:none;
 }
 
-/* Fecha & Hora */
 .when{ display:flex; gap:28px; align-items:center; margin-top:8px }
 .group{ display:flex; align-items:center; gap:12px }
 .icon-circle{
@@ -90,7 +87,6 @@ body{
   font-weight:600; color:#6b6b6b; outline:none;
 }
 
-/* Botón guardar */
 .actions{ display:grid; place-items:center; margin-top:12px }
 .btn-cta{
   border:0; border-radius:28px; padding:16px 28px; cursor:pointer;
@@ -98,7 +94,33 @@ body{
   box-shadow:0 2px 0 rgba(0,0,0,.06) inset;
 }
 
-/* Responsive */
+
+.select{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #cfcfcf;
+  background:#fff;
+  color:#111;
+  font: inherit;
+  outline:none;
+
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #666 50%),
+                    linear-gradient(135deg, #666 50%, transparent 50%),
+                    linear-gradient(to right, transparent, transparent);
+  background-position: calc(100% - 20px) calc(50% - 3px),
+                       calc(100% - 14px) calc(50% - 3px),
+                       0 0;
+  background-size: 6px 6px, 6px 6px, 100% 100%;
+  background-repeat: no-repeat;
+}
+.select:focus{
+  border-color:#bdbdbd;
+  box-shadow:0 0 0 3px rgba(0,0,0,.05);
+}
+
+
 @media (max-width: 720px){
   .field-row{ grid-template-columns:1fr; }
   .field-row label{ font-size:18px }
