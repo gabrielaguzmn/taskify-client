@@ -77,9 +77,16 @@ function initLogin() {
         password: passInput.value.trim(),
       });
       console.log("The login has succeeded!!!", response);
-      if (response.user) {
+  if (response.user) {
+    console.log("User object to store:", response.user); // Debug what we're storing
     localStorage.setItem('currentUser', JSON.stringify(response.user));
     localStorage.setItem('isLoggedIn', 'true');
+    
+    // Verify it was stored correctly
+    const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+    console.log("Verified stored user:", storedUser);
+  } else {
+    console.error("No user object in login response");
   }
 
       // msg.textContent = "Login successful!";
@@ -165,16 +172,55 @@ function initDashboard() {
     e.preventDefault();
 
     try {
-    const TaskData = {
-      title : document.getElementById("title").value.trim(),
-      description : document.getElementById("detail").value.trim(),
-      date : document.getElementById("date").value,
-      time : document.getElementById("time").value,
-      status : document.getElementById("status").value,
+      const currentUser = getCurrentUser();
+      console.log("Current user from localStorage:", currentUser); // Debug log
+      
+      // Better validation
+      if (!currentUser) {
+        console.error("No user found in localStorage");
+        alert("Please log in again");
+        location.hash = "#/login";
+        return;
+      }
+      
+      if (!currentUser.id) {
+        console.error("User object missing _id:", currentUser);
+        alert("Invalid user session. Please log in again");
+        location.hash = "#/login";
+        return;
+      }
 
+      const dateValue = document.getElementById("date").value;
+      const timeValue = document.getElementById("time").value;
+      
+      // Validate required fields
+      if (!dateValue) {
+        alert("Please select a date");
+        return;
+      }
+      
+      // Combine date and time into a single Date object
+      let combinedDate;
+      if (timeValue) {
+        // If time is provided, combine date and time
+        combinedDate = new Date(`${dateValue}T${timeValue}:00`);
+      } else {
+        // If no time provided, use start of day
+        combinedDate = new Date(`${dateValue}T00:00:00`);
+      }
+
+      const TaskData = {
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("detail").value.trim(),
+        date: combinedDate, // Single Date object
+        status: document.getElementById("status").value,
+        userId: currentUser.id
       };
-    await createTask(TaskData)
-    console.log("Succesfully created task")
+
+      console.log("Task data to be sent:", TaskData); // Debug log
+      await createTask(TaskData);
+      console.log("Successfully created task");
+      
     } catch(err){
       console.log("Something went wrong :(", err.message)
     }
@@ -207,10 +253,32 @@ function initDashboard() {
  */
 export function getCurrentUser() {
   try {
+    console.log("Getting current user from localStorage..."); // Debug log
     const userStr = localStorage.getItem('currentUser');
-    return userStr ? JSON.parse(userStr) : null;
+    console.log("Raw user string:", userStr); // Debug log
+    
+    if (!userStr) {
+      console.log("No user string found in localStorage");
+      return null;
+    }
+    
+    const user = JSON.parse(userStr);
+    console.log("Parsed user object:", user); // Debug log
+    
+    // Validate user object structure
+    if (!user || typeof user !== 'object') {
+      console.error("Invalid user object structure");
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('isLoggedIn');
+      return null;
+    }
+    
+    return user;
   } catch (error) {
     console.error('Error parsing user data:', error);
+    // Clear corrupted data
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('isLoggedIn');
     return null;
   }
 }
