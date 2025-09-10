@@ -1,0 +1,128 @@
+:root{
+  --bg:#f3f3f3;
+  --white:#fff;
+  --panel:#dcdcdc;
+  --text:#111;
+  --muted:#6f6f6f;
+  --radius:20px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  font-family: system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+  color:var(--text);
+}
+
+/* Topbar */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px;
+  background:var(--white);
+  border-bottom:1px solid #ececec;
+}
+.app-title{font-size:18px; margin:0}
+.btn-primary{
+  border:0; border-radius:12px; padding:10px 14px; cursor:pointer;
+  background:#111; color:#fff; font-weight:600;
+}
+
+.content{ padding:24px }
+.empty-hint{ color:var(--muted) }
+
+
+.overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.25);
+  display:none; align-items:center; justify-content:center;
+  padding:18px;
+}
+.overlay.open{ display:flex }
+
+.modal{
+  width:min(920px, 100%);
+  background:var(--white);
+  border-radius:12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.18);
+  overflow:hidden;
+}
+.modal-header{
+  display:flex; align-items:center; justify-content:center;
+  padding:14px 18px; position:relative; border-bottom:1px solid #dadada;
+}
+.modal-header h2{ margin:0; font-size:28px; font-weight:600 }
+.icon-btn{
+  position:absolute; right:12px; top:8px;
+  border:0; background:transparent; font-size:28px; line-height:1; cursor:pointer;
+}
+
+.modal-body{
+  background:var(--panel);
+  padding:26px 24px 38px;
+}
+
+#taskForm{
+  max-width:820px; margin:0 auto; display:grid; gap:20px;
+}
+.field-row{
+  display:grid; grid-template-columns:140px 1fr; gap:16px; align-items:center;
+}
+.field-row label{ font-size:20px }
+.field-row input[type="text"]{
+  width:100%; padding:14px; border-radius:12px;
+  border:1px solid #cfcfcf; background:#fff; outline:none;
+}
+
+.when{ display:flex; gap:28px; align-items:center; margin-top:8px }
+.group{ display:flex; align-items:center; gap:12px }
+.icon-circle{
+  width:36px; height:36px; border-radius:50%;
+  display:grid; place-items:center; border:2px solid #2b2b2b; color:#2b2b2b;
+  background:#f5f5f5;
+}
+.seg{
+  width:64px; padding:10px 12px; border-radius:12px;
+  border:1px solid #ddd; background:#f7f7f7; text-align:center;
+  font-weight:600; color:#6b6b6b; outline:none;
+}
+
+.actions{ display:grid; place-items:center; margin-top:12px }
+.btn-cta{
+  border:0; border-radius:28px; padding:16px 28px; cursor:pointer;
+  background:#f3f3f3; color:#111; font-weight:700; font-size:20px;
+  box-shadow:0 2px 0 rgba(0,0,0,.06) inset;
+}
+
+
+.select{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #cfcfcf;
+  background:#fff;
+  color:#111;
+  font: inherit;
+  outline:none;
+
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #666 50%),
+                    linear-gradient(135deg, #666 50%, transparent 50%),
+                    linear-gradient(to right, transparent, transparent);
+  background-position: calc(100% - 20px) calc(50% - 3px),
+                       calc(100% - 14px) calc(50% - 3px),
+                       0 0;
+  background-size: 6px 6px, 6px 6px, 100% 100%;
+  background-repeat: no-repeat;
+}
+.select:focus{
+  border-color:#bdbdbd;
+  box-shadow:0 0 0 3px rgba(0,0,0,.05);
+}
+
+
+@media (max-width: 720px){
+  .field-row{ grid-template-columns:1fr; }
+  .field-row label{ font-size:18px }
+  .when{ flex-direction:column; align-items:flex-start }
+}
