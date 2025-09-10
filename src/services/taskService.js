@@ -6,3 +6,19 @@ export const taskService = {
   update: (id, task) => http.put(`/tasks/${id}`, task),
   remove: (id) => http.del(`/tasks/${id}`)
 };
+
+export async function createTask({ title, description, date, status }) {
+  // Get current user ID automatically
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    throw new Error('User not logged in');
+  }
+
+  return http.post("/api/tasks/addTask", { 
+    title, 
+    description, 
+    date, 
+    status, 
+    userId: currentUser.id 
+  });
+}
