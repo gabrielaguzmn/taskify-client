@@ -1,6 +1,13 @@
 import { registerUser, loginUser, recoverPassword } from "../services/userService.js";
 import { createTask } from "../services/taskService.js";
 
+import '../styles/login.css';
+import '../styles/dashboard.css';
+ 
+
+import logoPI from '../assets/img/logoPI.jpg';
+
+
 const app = document.getElementById("app");
 
 /**
@@ -19,7 +26,9 @@ const viewURL = (name) => new URL(`../views/${name}.html`, import.meta.url);
 async function loadView(name) {
   const res = await fetch(viewURL(name));
   if (!res.ok) throw new Error(`Failed to load view: ${name}`);
-  const html = await res.text();
+  let html = await res.text();
+  html = html.replace('/src/assets/img/logoPI.jpg', logoPI);
+
   app.innerHTML = html;
 
   if (name === "login") initLogin();
@@ -167,7 +176,7 @@ function initDashboard() {
   const list = document.getElementById("taskList");
 
   if (!form || !list) return;
-
+  
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
