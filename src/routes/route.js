@@ -26,8 +26,10 @@ const viewURL = (name) => new URL(`../views/${name}.html`, import.meta.url);
 async function loadView(name) {
   const res = await fetch(viewURL(name));
   if (!res.ok) throw new Error(`Failed to load view: ${name}`);
-  let html = await res.text();
-  html = html.replace('/src/assets/img/logoPI.jpg', logoPI);
+    const html = await res.text();
+
+  // let html = await res.text();
+  // html = html.replace('/src/assets/img/logoPI.jpg', logoPI);
 
   app.innerHTML = html;
 
@@ -124,8 +126,8 @@ function initRegister() {
 
     try {
       const userData = {
-        name: document.getElementById("firstName").value.trim(),
-        lastName: document.getElementById("lastName").value.trim(),
+        name: document.getElementById("name").value.trim(),
+        lastName: document.getElementById("lastname").value.trim(),
         age: document.getElementById("age").value.trim(),
         email: document.getElementById("email").value.trim(),
         password: document.getElementById("password").value.trim(),
