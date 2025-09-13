@@ -174,6 +174,27 @@ function initRecover() {
 function initDashboard() {
   const form = document.getElementById("taskForm");
   const list = document.getElementById("taskList");
+  const open = document.getElementById("openModal");
+  const close = document.getElementById("closeModal");
+  const modal = document.getElementById("taskModal");
+
+  
+if (open && close && modal) {
+    const toggle = (show) => {
+      modal.classList.toggle("open", show);
+      modal.setAttribute("aria-hidden", show ? "false" : "true");
+      if (show) document.getElementById("title").focus();
+    };
+
+    open.addEventListener("click", () => toggle(true));
+    close.addEventListener("click", () => toggle(false));
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) toggle(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") toggle(false);
+    });
+  }
 
   if (!form || !list) return;
   
@@ -220,7 +241,7 @@ function initDashboard() {
 
       const TaskData = {
         title: document.getElementById("title").value.trim(),
-        description: document.getElementById("detail").value.trim(),
+        description: document.getElementById("description").value.trim(),
         date: combinedDate, // Single Date object
         status: document.getElementById("status").value,
         userId: currentUser.id
