@@ -16,30 +16,44 @@ body{
   padding:28px 12px;
 }
 
-/* Marco blanco exterior como en la referencia */
-.frame{
-  width:min(980px, 100%);
-  background:var(--white);
-  border-radius:12px;
-  padding:26px;
-  box-shadow:0 10px 30px rgba(0,0,0,.06);
+.frame {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f5f5f5;
 }
 
-/* Card con 2 paneles */
-.auth-shell{
-  display:flex;
-  min-height:460px;
-  background:var(--panel);
-  border-radius:var(--radius);
-  overflow:hidden;
+.auth-shell {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  overflow: hidden;
+  max-width: 900px;
+  width: 100%;
 }
 
-/* Panel izquierdo: imagen */
-.panel-image{
-  flex:1.05;
-  background:linear-gradient(0deg,#fff,#fff);
-  display:grid; place-items:center;
-  padding:24px;
+.panel-form, .panel-image {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px;
+}
+
+.panel-form {
+  background: #e0e0e0;
+}
+
+.panel-image {
+  align-items: center;
+  justify-content: center;
+}
+
+.panel-image img {
+  max-width: 250px;
+  height: auto;
 }
 
 /* Caja de imagen (reemplazable por <img>) */
@@ -115,6 +129,24 @@ input:focus{
   color:#6f6f6f;
   text-decoration:underline;
   text-underline-offset:3px;
+}
+
+.feedback {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.feedback.success {
+  color: green;
+}
+
+.feedback.error {
+  color: red;
+}
+
+.feedback.loading {
+  color: #007bff;
 }
 
 /* Responsive */
