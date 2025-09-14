@@ -1,0 +1,117 @@
+/* Reset básico */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* Navbar */
+.navbar {
+  background-color: #d9d9d9;
+  padding: 15px 40px;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Layout principal */
+.home-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60px 80px;
+  gap: 40px;
+}
+
+/* Columna izquierda */
+.home-left {
+  flex: 1;
+}
+
+.home-title {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.home-text {
+  font-size: 16px;
+  margin-bottom: 30px;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* Botones */
+.home-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.btn {
+  background-color: #cfcfcf;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 15px;
+  text-decoration: none;
+  color: #000;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background-color: #b3b3b3;
+}
+
+.btn-secondary {
+  background-color: #d9d9d9;
+}
+
+.btn-secondary:hover {
+  background-color: #b3b3b3;
+}
+
+/* Columna derecha */
+
+.home-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;   /* centra horizontal */
+  align-items: center;       /* centra vertical */
+  height: 100%;              /* ocupa toda la altura de la sección */
+}
+.home-right img {
+  max-width: 350px;   /* Tamaño máximo */
+  width: 100%;        /* Escala proporcional */
+  height: auto;       /* Mantiene proporción */
+  border-radius: 12px; /* Opcional: esquinas redondeadas */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Opcional: sombra */
+}
+
+.image-placeholder {
+  width: 300px;
+  height: 220px;
+  background-color: #d9d9d9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  border-radius: 8px;
+  color: #444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .home-container {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .home-right {
+    margin-top: 30px;
+  }
+}
