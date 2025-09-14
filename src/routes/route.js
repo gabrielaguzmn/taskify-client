@@ -1,5 +1,6 @@
 import { registerUser, loginUser, recoverPassword } from "../services/userService.js";
 import { createTask } from "../services/taskService.js";
+import logo from "../assets/img/logoPI.jpg";
 
 const app = document.getElementById("app");
 
@@ -21,6 +22,17 @@ async function loadView(name) {
   if (!res.ok) throw new Error(`Failed to load view: ${name}`);
   const html = await res.text();
   app.innerHTML = html;
+
+  if (name === "login") {
+    const imgEl = document.getElementById("registerLogo");
+    if (imgEl) imgEl.src = logo;
+  }
+
+
+  if (name === "register") {
+    const imgEl = document.getElementById("registerLogo");
+    if (imgEl) imgEl.src = logo;
+  }
 
   if (name === "login") initLogin();
   if (name === "register") initRegister();
@@ -62,35 +74,37 @@ function initLogin() {
   const form = document.getElementById("loginForm");
   const emailInput = document.getElementById("email");
   const passInput = document.getElementById("password");
-  // const msg = document.getElementById("loginMsg");
+  const msg = document.getElementById("loginMsg");
 
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    // msg.textContent = "";
+    msg.textContent = "Processing login...";
+    msg.className = "feedback loading";
 
     try {
-      console.log("Attempting login with:", { email: emailInput.value.trim() });
       const response = await loginUser({
         email: emailInput.value.trim(),
         password: passInput.value.trim(),
       });
-      console.log("The login has succeeded!!!", response);
-      if (response.user) {
-    localStorage.setItem('currentUser', JSON.stringify(response.user));
-    localStorage.setItem('isLoggedIn', 'true');
-  }
 
-      // msg.textContent = "Login successful!";
-      setTimeout(() => (location.hash = "#/dashboard"), 400);
+      if (response.user) {
+        localStorage.setItem("currentUser", JSON.stringify(response.user));
+        localStorage.setItem("isLoggedIn", "true");
+      }
+
+      msg.textContent = "Login successful!";
+      msg.className = "feedback success";
+
+      setTimeout(() => (location.hash = "#/dashboard"), 800);
     } catch (err) {
-      console.error("The login has failed:", err);
-      console.error("Error message:", err.message);
-      // msg.textContent = `Login failed: ${err.message}`;
+      msg.textContent = `Login failed: ${err.message}`;
+      msg.className = "feedback error";
     }
   });
 }
+
 
 /**
  * Initialize the "register" view.
@@ -98,30 +112,52 @@ function initLogin() {
  */
 function initRegister() {
   const form = document.getElementById("registerForm");
- // const msg = document.getElementById("registerMsg");
+  const msg = document.getElementById("registerMsg");
 
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-  //  msg.textContent = "";
+    msg.textContent = "";
+    msg.className = "feedback";
+
+    // Extraer valores
+    const userData = {
+      name: document.getElementById("firstName").value.trim(),
+      lastName: document.getElementById("lastName").value.trim(),
+      age: parseInt(document.getElementById("age").value.trim(), 10), // <- ya no se valida
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("password").value.trim(),
+    };
+
+    //Validaciones personalizadas
+    if (!userData.name || !userData.lastName) {
+      msg.textContent = "First name and last name are required.";
+      msg.classList.add("error");
+      return;
+    }
+
+    if (!userData.email.includes("@")) {
+      msg.textContent = "Please enter a valid email address.";
+      msg.classList.add("error");
+      return;
+    }
+
+    if (userData.password.length < 6) {
+      msg.textContent = "Password must be at least 6 characters long.";
+      msg.classList.add("error");
+      return;
+    }
 
     try {
-      const userData = {
-        name: document.getElementById("firstName").value.trim(),
-        lastName: document.getElementById("lastName").value.trim(),
-        age: document.getElementById("age").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        password: document.getElementById("password").value.trim(),
-      };
-
       await registerUser(userData);
-  //    msg.textContent = "Registration successful!";
-  console.log("The register was sucessful !!!!!");
-      setTimeout(() => (location.hash = "#/login"), 400);
+      msg.textContent = "Registration successful!";
+      msg.classList.add("success");
+
+      setTimeout(() => (location.hash = "#/login"), 800);
     } catch (err) {
-      console.log("Something has failed:", err.message);
-   //   msg.textContent = `Registration failed: ${err.message}`;
+      msg.textContent = `Registration failed: ${err.message}`;
+      msg.classList.add("error");
     }
   });
 }
@@ -158,48 +194,65 @@ function initRecover() {
 function initDashboard() {
   const form = document.getElementById("taskForm");
   const list = document.getElementById("taskList");
+  const open = document.getElementById('openModal');
+  const close = document.getElementById('closeModal');
+  const modal = document.getElementById('taskModal');
 
-  if (!form || !list) return;
+  if (!form || !modal || !open || !close) return;
+
+  
+  const toggle = (show) => {
+    modal.classList.toggle("open", show);
+    modal.setAttribute("aria-hidden", show ? "false" : "true");
+    if (show) document.getElementById("title").focus();
+  };
+
+  open.addEventListener("click", () => toggle(true));
+  close.addEventListener("click", () => toggle(false));
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) toggle(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") toggle(false);
+  });
+
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     try {
-    const TaskData = {
-      title : document.getElementById("title").value.trim(),
-      description : document.getElementById("detail").value.trim(),
-      date : document.getElementById("date").value,
-      time : document.getElementById("time").value,
-      status : document.getElementById("status").value,
+      
+      const day = document.getElementById("day").value.padStart(2, "0");
+      const month = document.getElementById("month").value.padStart(2, "0");
+      const year = document.getElementById("year").value;
 
+      const hour = document.getElementById("hour").value.padStart(2, "0");
+      const minute = document.getElementById("minute").value.padStart(2, "0");
+
+      
+      const date = `${year}-${month}-${day}`;   
+      const time = `${hour}:${minute}`;         
+
+      
+      const TaskData = {
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        date,
+        time,
+        status: document.getElementById("status").value,
       };
-    await createTask(TaskData)
-    console.log("Succesfully created task")
-    } catch(err){
-      console.log("Something went wrong :(", err.message)
+
+      await createTask(TaskData);
+      console.log("Task created successfully:", TaskData);
+
+    } catch (err) {
+      console.log("Something went wrong:", err.message);
     }
 
-    // if (!title) return;
-
-    // const taskItem = document.createElement("div");
-    // taskItem.className = "task";
-    // taskItem.innerHTML = `
-    //   <h3>${title}</h3>
-    //   <p>${detail}</p>
-    //   <small>${date} ${time}</small>
-    //   <span>Status: ${status}</span>
-    //   <button class="removeBtn">Delete</button>
-    // `;
-
-    // list.prepend(taskItem);
     form.reset();
-
-    // Delete task
-    // taskItem.querySelector(".removeBtn").addEventListener("click", () => {
-    //   taskItem.remove();
-    // });
   });
 }
+
 
 /**
  * Get the currently logged-in user
