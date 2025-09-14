@@ -1,9 +1,10 @@
 import { registerUser, loginUser, recoverPassword } from "../services/userService.js";
 import { createTask } from "../services/taskService.js";
+import logo from "../assets/img/logoPI.jpg";
 
 import '../styles/login.css';
 import '../styles/dashboard.css';
- 
+
 
 import logoPI from '../assets/img/logoPI.jpg';
 
@@ -26,12 +27,23 @@ const viewURL = (name) => new URL(`../views/${name}.html`, import.meta.url);
 async function loadView(name) {
   const res = await fetch(viewURL(name));
   if (!res.ok) throw new Error(`Failed to load view: ${name}`);
-    const html = await res.text();
+  const html = await res.text();
 
   // let html = await res.text();
   // html = html.replace('/src/assets/img/logoPI.jpg', logoPI);
 
   app.innerHTML = html;
+
+  if (name === "login") {
+    const imgEl = document.getElementById("registerLogo");
+    if (imgEl) imgEl.src = logo;
+  }
+
+
+  if (name === "register") {
+    const imgEl = document.getElementById("registerLogo");
+    if (imgEl) imgEl.src = logo;
+  }
 
   if (name === "login") initLogin();
   if (name === "register") initRegister();
@@ -73,42 +85,37 @@ function initLogin() {
   const form = document.getElementById("loginForm");
   const emailInput = document.getElementById("email");
   const passInput = document.getElementById("password");
-  // const msg = document.getElementById("loginMsg");
+  const msg = document.getElementById("loginMsg");
 
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    // msg.textContent = "";
+    msg.textContent = "Processing login...";
+    msg.className = "feedback loading";
 
     try {
-      console.log("Attempting login with:", { email: emailInput.value.trim() });
       const response = await loginUser({
         email: emailInput.value.trim(),
         password: passInput.value.trim(),
       });
       console.log("The login has succeeded!!!", response);
-  if (response.user) {
-    console.log("User object to store:", response.user); // Debug what we're storing
-    localStorage.setItem('currentUser', JSON.stringify(response.user));
-    localStorage.setItem('isLoggedIn', 'true');
-    
-    // Verify it was stored correctly
-    const storedUser = JSON.parse(localStorage.getItem('currentUser'));
-    console.log("Verified stored user:", storedUser);
-  } else {
-    console.error("No user object in login response");
-  }
+      if (response.user) {
+        localStorage.setItem("currentUser", JSON.stringify(response.user));
+        localStorage.setItem("isLoggedIn", "true");
+      }
 
-      // msg.textContent = "Login successful!";
-      setTimeout(() => (location.hash = "#/dashboard"), 400);
+      msg.textContent = "Login successful!";
+      msg.className = "feedback success";
+
+      setTimeout(() => (location.hash = "#/dashboard"), 800);
     } catch (err) {
-      console.error("The login has failed:", err);
-      console.error("Error message:", err.message);
-      // msg.textContent = `Login failed: ${err.message}`;
+      msg.textContent = `Login failed: ${err.message}`;
+      msg.className = "feedback error";
     }
   });
 }
+
 
 /**
  * Initialize the "register" view.
@@ -116,13 +123,14 @@ function initLogin() {
  */
 function initRegister() {
   const form = document.getElementById("registerForm");
- // const msg = document.getElementById("registerMsg");
+  const msg = document.getElementById("registerMsg");
 
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-  //  msg.textContent = "";
+    msg.textContent = "";
+    msg.className = "feedback";
     try {
       const userData = {
         name: document.getElementById("name").value.trim(),
@@ -131,21 +139,32 @@ function initRegister() {
         email: document.getElementById("email").value.trim(),
         password: document.getElementById("password").value.trim(),
       };
-      if (validateRegisterForm(userData)){
-       if (userData.password == document.getElementById("confirm").value.trim()){
-        await registerUser(userData);
-        console.log("The register was sucessful !!!!!");
-        setTimeout(() => (location.hash = "#/login"), 400);
+      if (validateRegisterForm(userData).isValid) {
+        if (userData.password == document.getElementById("confirm").value.trim()) {
+          await registerUser(userData);
+          console.log("The register was sucessful !!!!!");
+          msg.textContent = "Registration successful!";
+          msg.classList.add("success");
+          setTimeout(() => (location.hash = "#/login"), 400);
+        }
+        else {
+          console.log("La contraseña no coincide");
+          msg.textContent = "La contraseña ingresada no coincide"
+          msg.classList.add("error")
+        }
       }
-      else{
-        console.log("La contraseña no coincide");
-      } 
+      else {
+        msg.textContent = validateRegisterForm(userData).error
+        msg.classList.add("error")
       }
-    } catch (err) {
-      console.log("Something has failed:", err.message);
-   //   msg.textContent = `Registration failed: ${err.message}`;
+    }
+    catch (err) {
+      msg.textContent = `Registration failed: ${err.message}`;
+      msg.classList.add("error");
+
     }
   });
+
 }
 
 /**
@@ -184,8 +203,8 @@ function initDashboard() {
   const close = document.getElementById("closeModal");
   const modal = document.getElementById("taskModal");
 
-  
-if (open && close && modal) {
+
+  if (open && close && modal) {
     const toggle = (show) => {
       modal.classList.toggle("open", show);
       modal.setAttribute("aria-hidden", show ? "false" : "true");
@@ -202,86 +221,88 @@ if (open && close && modal) {
     });
   }
 
-  if (!form || !list) return;
-  
+  if (!form) return;
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    try {
-      const currentUser = getCurrentUser();
-      console.log("Current user from localStorage:", currentUser); // Debug log
-      
-      // Better validation
-      if (!currentUser) {
-        console.error("No user found in localStorage");
-        alert("Please log in again");
-        location.hash = "#/login";
-        return;
-      }
-      
-      if (!currentUser.id) {
-        console.error("User object missing _id:", currentUser);
-        alert("Invalid user session. Please log in again");
-        location.hash = "#/login";
-        return;
-      }
+try {
+  // User validation from HEAD (important for security)
+  const currentUser = getCurrentUser();
+  console.log("Current user from localStorage:", currentUser); // Debug log
 
-      const dateValue = document.getElementById("date").value;
-      const timeValue = document.getElementById("time").value;
-      
-      // Validate required fields
-      if (!dateValue) {
-        alert("Please select a date");
-        return;
-      }
-      
-      // Combine date and time into a single Date object
-      let combinedDate;
-      if (timeValue) {
-        // If time is provided, combine date and time
-        combinedDate = new Date(`${dateValue}T${timeValue}:00`);
-      } else {
-        // If no time provided, use start of day
-        combinedDate = new Date(`${dateValue}T00:00:00`);
-      }
+  // Better validation
+  if (!currentUser) {
+    console.error("No user found in localStorage");
+    alert("Please log in again");
+    location.hash = "#/login";
+    return;
+  }
 
-      const TaskData = {
-        title: document.getElementById("title").value.trim(),
-        description: document.getElementById("description").value.trim(),
-        date: combinedDate, // Single Date object
-        status: document.getElementById("status").value,
-        userId: currentUser.id
-      };
+  if (!currentUser.id) {
+    console.error("User object missing _id:", currentUser);
+    alert("Invalid user session. Please log in again");
+    location.hash = "#/login";
+    return;
+  }
 
-      console.log("Task data to be sent:", TaskData); // Debug log
-      await createTask(TaskData);
-      console.log("Successfully created task");
-      
-    } catch(err){
-      console.log("Something went wrong :(", err.message)
-    }
+  // Date/time collection from KevinPrado/Features (matches your HTML)
+  const day = document.getElementById("day").value.padStart(2, "0");
+  const month = document.getElementById("month").value.padStart(2, "0");
+  const year = document.getElementById("year").value;
 
-    // if (!title) return;
+  const hour = document.getElementById("hour").value.padStart(2, "0");
+  const minute = document.getElementById("minute").value.padStart(2, "0");
 
-    // const taskItem = document.createElement("div");
-    // taskItem.className = "task";
-    // taskItem.innerHTML = `
-    //   <h3>${title}</h3>
-    //   <p>${detail}</p>
-    //   <small>${date} ${time}</small>
-    //   <span>Status: ${status}</span>
-    //   <button class="removeBtn">Delete</button>
-    // `;
+  // Validate required fields
+  if (!day || !month || !year) {
+    alert("Please fill in all date fields (day, month, year)");
+    return;
+  }
 
-    // list.prepend(taskItem);
-    form.reset();
+  // Build date and time strings
+  const dateString = `${year}-${month}-${day}`;
+  const timeString = `${hour}:${minute}`;
 
-    // Delete task
-    // taskItem.querySelector(".removeBtn").addEventListener("click", () => {
-    //   taskItem.remove();
-    // });
+  // Create combined Date object for better backend compatibility
+  let combinedDate;
+  if (hour && minute) {
+    // If time is provided, combine date and time
+    combinedDate = new Date(`${dateString}T${timeString}:00`);
+  } else {
+    // If no time provided, use start of day
+    combinedDate = new Date(`${dateString}T00:00:00`);
+  }
+
+  // Task data object (combining both approaches)
+  const TaskData = {
+    title: document.getElementById("title").value.trim(),
+    description: document.getElementById("description").value.trim(),
+    date: combinedDate, // Single Date object for backend
+    dateString, // Keep string version if needed
+    timeString, // Keep string version if needed
+    status: document.getElementById("status").value,
+    userId: currentUser.id // Important: include user ID
+  };
+
+  console.log("Task data to be sent:", TaskData); // Debug log
+  await createTask(TaskData);
+  console.log("Task created successfully:", TaskData);
+
+  // Clear form and close modal after success
+  form.reset();
+  if (modal) {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+} catch (err) {
+  console.error("Something went wrong:", err.message);
+  alert(`Error creating task: ${err.message}`);
+}
   });
 }
+
 
 /**
  * Get the currently logged-in user
@@ -292,15 +313,15 @@ export function getCurrentUser() {
     console.log("Getting current user from localStorage..."); // Debug log
     const userStr = localStorage.getItem('currentUser');
     console.log("Raw user string:", userStr); // Debug log
-    
+
     if (!userStr) {
       console.log("No user string found in localStorage");
       return null;
     }
-    
+
     const user = JSON.parse(userStr);
     console.log("Parsed user object:", user); // Debug log
-    
+
     // Validate user object structure
     if (!user || typeof user !== 'object') {
       console.error("Invalid user object structure");
@@ -308,7 +329,7 @@ export function getCurrentUser() {
       localStorage.removeItem('isLoggedIn');
       return null;
     }
-    
+
     return user;
   } catch (error) {
     console.error('Error parsing user data:', error);
@@ -336,17 +357,19 @@ export function logout() {
   location.hash = '#/login';
 }
 
-function validateRegisterForm(userData){
-  if (userData.password.length < 8 || !/[A-Z]/.test(userData.password)
-  || !/[0-9]/.test(userData.password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(userData.password)){
-    console.log("La contraseña debe de contener al menos 8 caracteres e incluir una mayuscula, un caracter especial y un numero");
-    return false;
+function validateRegisterForm(userData) {
+  let text = "";
+  if (parseInt(userData.age) < 13) {
+    text = "No tienes edad suficiente para registrarte :(";
+    return { isValid: false, error: text };
   }
-  else if (parseInt(userData.age) < 13){
-    console.log("No tienes edad suficiente para registrarte :(");
-    return false;
+  else if (userData.password.length < 8 || !/[A-Z]/.test(userData.password)
+    || !/[0-9]/.test(userData.password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(userData.password)) {
+    text = "La contraseña debe de contener al menos 8 caracteres e incluir una mayuscula, un caracter especial y un numero";
+    return { isValid: false, error: text };
   }
-  else{
-    return true
+  // Añadir error al no ingresar correo valido
+  else {
+    return { isValid: true, error: null };
   }
 }
