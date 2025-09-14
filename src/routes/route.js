@@ -34,8 +34,10 @@ async function loadView(name) {
     if (imgEl) imgEl.src = logo;
   }
 
+  if (name === "home") initHome();
   if (name === "login") initLogin();
   if (name === "register") initRegister();
+  if (name === "changePassword") initChangePassword();
   if (name === "recover") initRecover();
   if (name === "dashboard") initDashboard();
 }
@@ -55,7 +57,7 @@ export function initRouter() {
  */
 function handleRoute() {
   const path = (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "login";
-  const known = ["login", "register", "recover", "dashboard"];
+  const known = ["home", "login", "register", "recover", "dashboard", "changePassword"];
   const route = known.includes(path) ? path : "login";
 
   loadView(route).catch((err) => {
@@ -66,6 +68,18 @@ function handleRoute() {
 
 /* ---- View-specific logic ---- */
 
+function initHome() {
+  const buttons = document.querySelectorAll("[data-route]");
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const route = btn.getAttribute("data-route");
+      location.hash = `#/${route}`;
+    });
+  });
+}
+
 /**
  * Initialize the "login" view.
  * Handles user login and redirects to dashboard.
@@ -75,13 +89,37 @@ function initLogin() {
   const emailInput = document.getElementById("email");
   const passInput = document.getElementById("password");
   const msg = document.getElementById("loginMsg");
+  const btn = document.getElementById("loginBtn"); 
 
   if (!form) return;
 
+  //Función de validación dinámica
+  const validateForm = () => {
+    const emailOk = emailInput.value.trim().length > 0 && emailInput.value.includes("@");
+    const passOk = passInput.value.trim().length > 0;
+
+    const valid = emailOk && passOk;
+    btn.disabled = !valid; // desactiva si algo no está válido
+    return valid;
+  };
+
+  // Validar en cada cambio
+  emailInput.addEventListener("input", validateForm);
+  passInput.addEventListener("input", validateForm);
+
+  //Envío del formulario
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     msg.textContent = "Processing login...";
     msg.className = "feedback loading";
+    btn.disabled = true; 
+
+    if (!validateForm()) {
+      msg.textContent = "Please enter a valid email and password.";
+      msg.className = "feedback error";
+      btn.disabled = false;
+      return;
+    }
 
     try {
       const response = await loginUser({
@@ -101,9 +139,14 @@ function initLogin() {
     } catch (err) {
       msg.textContent = `Login failed: ${err.message}`;
       msg.className = "feedback error";
+      btn.disabled = false;
     }
   });
+
+  // inicializar validación al cargar
+  validateForm();
 }
+
 
 
 /**
@@ -113,39 +156,89 @@ function initLogin() {
 function initRegister() {
   const form = document.getElementById("registerForm");
   const msg = document.getElementById("registerMsg");
+  const btn = document.getElementById("registerBtn");
 
   if (!form) return;
 
+  const inputs = {
+    name: document.getElementById("firstName"),
+    lastName: document.getElementById("lastName"),
+    age: document.getElementById("age"),
+    email: document.getElementById("email"),
+    password: document.getElementById("password"),
+    confirmPassword: document.getElementById("confirmPassword"),
+  };
+
+  //función de validación
+  const validateForm = () => {
+    const nameOk = inputs.name.value.trim().length > 0;
+    const lastNameOk = inputs.lastName.value.trim().length > 0;
+    const ageOk = inputs.age.value.trim() !== "" && !isNaN(inputs.age.value);
+    const emailOk = inputs.email.value.includes("@");
+    const passOk = inputs.password.value.trim().length >= 6;
+    const confirmOk = inputs.password.value === inputs.confirmPassword.value;
+
+    const valid = nameOk && lastNameOk && ageOk && emailOk && passOk && confirmOk;
+    btn.disabled = !valid;
+
+    
+    if (!confirmOk && inputs.confirmPassword.value.length > 0) {
+      msg.textContent = "Passwords do not match.";
+      msg.className = "feedback error";
+    } else {
+      msg.textContent = "";
+      msg.className = "feedback";
+    }
+
+    return valid;
+  };
+
+  // validar en cada input
+  Object.values(inputs).forEach(input => {
+    input.addEventListener("input", validateForm);
+  });
+
+  
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     msg.textContent = "";
     msg.className = "feedback";
+    btn.disabled = true; 
 
-    // Extraer valores
     const userData = {
-      name: document.getElementById("firstName").value.trim(),
-      lastName: document.getElementById("lastName").value.trim(),
-      age: parseInt(document.getElementById("age").value.trim(), 10), // <- ya no se valida
-      email: document.getElementById("email").value.trim(),
-      password: document.getElementById("password").value.trim(),
+      name: inputs.name.value.trim(),
+      lastName: inputs.lastName.value.trim(),
+      age: parseInt(inputs.age.value.trim(), 10),
+      email: inputs.email.value.trim(),
+      password: inputs.password.value.trim(),
     };
 
-    //Validaciones personalizadas
+    // Validaciones personalizadas (mensajes en el label)
     if (!userData.name || !userData.lastName) {
       msg.textContent = "First name and last name are required.";
       msg.classList.add("error");
+      btn.disabled = false;
       return;
     }
 
     if (!userData.email.includes("@")) {
       msg.textContent = "Please enter a valid email address.";
       msg.classList.add("error");
+      btn.disabled = false;
       return;
     }
 
     if (userData.password.length < 6) {
       msg.textContent = "Password must be at least 6 characters long.";
       msg.classList.add("error");
+      btn.disabled = false;
+      return;
+    }
+
+    if (userData.password !== inputs.confirmPassword.value.trim()) {
+      msg.textContent = "Passwords do not match.";
+      msg.classList.add("error");
+      btn.disabled = false;
       return;
     }
 
@@ -154,10 +247,65 @@ function initRegister() {
       msg.textContent = "Registration successful!";
       msg.classList.add("success");
 
+      form.reset();
+      btn.disabled = true;
       setTimeout(() => (location.hash = "#/login"), 800);
     } catch (err) {
       msg.textContent = `Registration failed: ${err.message}`;
       msg.classList.add("error");
+      btn.disabled = false;
+    }
+  });
+
+  // inicializar validación al cargar
+  validateForm();
+}
+
+function initChangePassword() {
+  const form = document.getElementById("changePasswordForm");
+  const msg = document.getElementById("changePasswordMsg");
+  const backBtn = document.getElementById("backBtn");
+
+  if (!form) return;
+
+  // volver atrás
+  backBtn.addEventListener("click", () => {
+    location.hash = "#/dashboard"; 
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.textContent = "Processing...";
+    msg.className = "feedback loading";
+
+    const oldPassword = document.getElementById("oldPassword").value.trim();
+    const newPassword = document.getElementById("newPassword").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+    // Validaciones básicas
+    if (newPassword !== confirmPassword) {
+      msg.textContent = "New passwords do not match.";
+      msg.className = "feedback error";
+      return;
+    }
+
+    try {
+      
+      const res = await fetch("http://localhost:3000/api/users/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ oldPassword, newPassword }),
+      });
+
+      if (!res.ok) throw new Error("Error changing password");
+      msg.textContent = "Password changed successfully!";
+      msg.className = "feedback success";
+
+      form.reset();
+      setTimeout(() => (location.hash = "#/login"), 1200);
+    } catch (err) {
+      msg.textContent = `Error: ${err.message}`;
+      msg.className = "feedback error";
     }
   });
 }
