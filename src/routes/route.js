@@ -123,7 +123,6 @@ function initRegister() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
   //  msg.textContent = "";
-
     try {
       const userData = {
         name: document.getElementById("name").value.trim(),
@@ -132,11 +131,16 @@ function initRegister() {
         email: document.getElementById("email").value.trim(),
         password: document.getElementById("password").value.trim(),
       };
-
-      await registerUser(userData);
-  //    msg.textContent = "Registration successful!";
-  console.log("The register was sucessful !!!!!");
-      setTimeout(() => (location.hash = "#/login"), 400);
+      if (validateRegisterForm(userData)){
+       if (userData.password == document.getElementById("confirm").value.trim()){
+        await registerUser(userData);
+        console.log("The register was sucessful !!!!!");
+        setTimeout(() => (location.hash = "#/login"), 400);
+      }
+      else{
+        console.log("La contraseña no coincide");
+      } 
+      }
     } catch (err) {
       console.log("Something has failed:", err.message);
    //   msg.textContent = `Registration failed: ${err.message}`;
@@ -309,4 +313,19 @@ export function logout() {
   localStorage.removeItem('currentUser');
   localStorage.removeItem('isLoggedIn');
   location.hash = '#/login';
+}
+
+function validateRegisterForm(userData){
+  if (userData.password.length < 8 || !/[A-Z]/.test(userData.password)
+  || !/[0-9]/.test(userData.password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(userData.password)){
+    console.log("La contraseña debe de contener al menos 8 caracteres e incluir una mayuscula, un caracter especial y un numero");
+    return false;
+  }
+  else if (parseInt(userData.age) < 13){
+    console.log("No tienes edad suficiente para registrarte :(");
+    return false;
+  }
+  else{
+    return true
+  }
 }
