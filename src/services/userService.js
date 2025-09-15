@@ -1,48 +1,63 @@
 import { http } from "../api/http.js";
 
 /**
- * Register a new user in the system.
- *
- * @async
- * @function registerUser
- * @param {Object} params - User registration data.
- * @param {string} params.firstName - The first name of the user.
- * @param {string} params.lastName - The last name of the user.
- * @param {number} params.age - The age of the user.
- * @param {string} params.email - The email of the user.
- * @param {string} params.password - The password of the user.
- * @returns {Promise<Object>} The created user object returned by the API.
- * @throws {Error} If the API responds with an error.
+ * Register a new user
  */
 export async function registerUser({ name, lastName, age, email, password }) {
-  return http.post("/api/users/register", { name, lastName, age, email, password });
+  const res = await http.post("/users/register", { name, lastName, age, email, password });
+  return res;
 }
 
 /**
- * Login a user into the system.
- *
- * @async
- * @function loginUser
- * @param {Object} params - User login data.
- * @param {string} params.email - The email of the user.
- * @param {string} params.password - The password of the user.
- * @returns {Promise<Object>} The auth token and user info returned by the API.
- * @throws {Error} If the API responds with an error.
+ * Login user and persist in localStorage
  */
 export async function loginUser({ email, password }) {
-  return http.post("/api/users/login", { email, password });
+  const res = await http.post("/users/login", { email, password });
+
+  if (res.user) {
+    localStorage.setItem("currentUser", JSON.stringify(res.user));
+    localStorage.setItem("isLoggedIn", "true");
+    if (res.token) {
+      localStorage.setItem("authToken", res.token);
+    }
+  }
+  return res;
 }
 
 /**
- * Send a password recovery request.
- *
- * @async
- * @function recoverPassword
- * @param {Object} params - Recovery data.
- * @param {string} params.email - The email of the user to recover.
- * @returns {Promise<Object>} Response from the API.
- * @throws {Error} If the API responds with an error.
+ * Password recovery
  */
 export async function recoverPassword({ email }) {
-  return http.post("/api/users/recover", { email });
+  const res = await http.post("/users/recover", { email });
+  return res;
+}
+
+/**
+ * Get current user from localStorage
+ */
+export function getCurrentUser() {
+  try {
+    const userStr = localStorage.getItem("currentUser");
+    return userStr ? JSON.parse(userStr) : null;
+  } catch (err) {
+    console.error("Error parsing user data:", err);
+    return null;
+  }
+}
+
+/**
+ * Check if user is logged in
+ */
+export function isLoggedIn() {
+  return localStorage.getItem("isLoggedIn") === "true";
+}
+
+/**
+ * Logout
+ */
+export function logout() {
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("isLoggedIn");
+  localStorage.removeItem("authToken");
+  location.hash = "#/login";
 }

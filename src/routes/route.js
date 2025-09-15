@@ -1,5 +1,5 @@
-import { registerUser, loginUser, recoverPassword } from "../services/userService.js";
-import { createTask } from "../services/taskService.js";
+import { registerUser, loginUser, recoverPassword, getCurrentUser } from "../services/userService.js";
+import { getTasks, createTask } from "../services/taskService.js";
 import logo from "../assets/img/logoPI.jpg";
 
 const app = document.getElementById("app");
@@ -161,7 +161,7 @@ function initRegister() {
   if (!form) return;
 
   const inputs = {
-    name: document.getElementById("firstName"),
+    name: document.getElementById("name"),
     lastName: document.getElementById("lastName"),
     age: document.getElementById("age"),
     email: document.getElementById("email"),
@@ -341,14 +341,13 @@ function initRecover() {
  */
 function initDashboard() {
   const form = document.getElementById("taskForm");
-  const list = document.getElementById("taskList");
-  const open = document.getElementById('openModal');
-  const close = document.getElementById('closeModal');
-  const modal = document.getElementById('taskModal');
+  const open = document.getElementById("openModal");
+  const close = document.getElementById("closeModal");
+  const modal = document.getElementById("taskModal");
 
   if (!form || !modal || !open || !close) return;
 
-  
+  // --- Toggle modal ---
   const toggle = (show) => {
     modal.classList.toggle("open", show);
     modal.setAttribute("aria-hidden", show ? "false" : "true");
@@ -364,12 +363,47 @@ function initDashboard() {
     if (e.key === "Escape") toggle(false);
   });
 
+  // --- Función para renderizar tarea ---
+  const renderTask = (task) => {
+    const taskCard = document.createElement("div");
+    taskCard.className = "task-card";
+    taskCard.innerHTML = `
+      <h3>${task.title || "Untitled Task"}</h3>
+      <p>${task.description || "No description"}</p>
+      <div class="meta">
+        <span>📅 ${task.date}</span>
+        <span>⏰ ${task.time}</span>
+      </div>
+      <div class="actions">
+        <button class="edit">✏️</button>
+        <button class="delete">🗑️</button>
+      </div>
+    `;
 
+    if (task.status === "to do") {
+      document.getElementById("todoList").appendChild(taskCard);
+    } else if (task.status === "doing") {
+      document.getElementById("doingList").appendChild(taskCard);
+    } else if (task.status === "done") {
+      document.getElementById("doneList").appendChild(taskCard);
+    }
+  };
+
+  // --- Cargar tareas al iniciar ---
+  (async () => {
+    try {
+      const tasks = await getTasks(); // Llama al backend
+      tasks.forEach(renderTask);
+    } catch (err) {
+      console.error("Error loading tasks:", err);
+    }
+  })();
+
+  // --- Envío del formulario ---
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     try {
-      
       const day = document.getElementById("day").value.padStart(2, "0");
       const month = document.getElementById("month").value.padStart(2, "0");
       const year = document.getElementById("year").value;
@@ -377,11 +411,9 @@ function initDashboard() {
       const hour = document.getElementById("hour").value.padStart(2, "0");
       const minute = document.getElementById("minute").value.padStart(2, "0");
 
-      
-      const date = `${year}-${month}-${day}`;   
-      const time = `${hour}:${minute}`;         
+      const date = `${year}-${month}-${day}`;
+      const time = `${hour}:${minute}`;
 
-      
       const TaskData = {
         title: document.getElementById("title").value.trim(),
         description: document.getElementById("description").value.trim(),
@@ -390,31 +422,20 @@ function initDashboard() {
         status: document.getElementById("status").value,
       };
 
-      await createTask(TaskData);
-      console.log("Task created successfully:", TaskData);
+      const savedTask = await createTask(TaskData); // Guardar en el back
+      renderTask(savedTask); // Mostrar en el front
 
+      console.log("Task created successfully:", savedTask);
+
+      form.reset();
+      toggle(false);
     } catch (err) {
-      console.log("Something went wrong:", err.message);
+      console.error("Something went wrong:", err.message);
     }
-
-    form.reset();
   });
 }
 
 
-/**
- * Get the currently logged-in user
- * @returns {Object|null} User object or null if not logged in
- */
-export function getCurrentUser() {
-  try {
-    const userStr = localStorage.getItem('currentUser');
-    return userStr ? JSON.parse(userStr) : null;
-  } catch (error) {
-    console.error('Error parsing user data:', error);
-    return null;
-  }
-}
 
 /**
  * Check if user is logged in
