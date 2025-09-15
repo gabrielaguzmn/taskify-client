@@ -1,5 +1,6 @@
 import { registerUser, loginUser, recoverPassword } from "../services/userService.js";
 import { createTask } from "../services/taskService.js";
+
 import logo from "../assets/img/logoPI.jpg";
 
 import '../styles/login.css';
@@ -74,6 +75,48 @@ function handleRoute() {
     app.innerHTML = `<p style="color:#ff4d4d">Error loading the view.</p>`;
   });
 }
+function showSpinner() {
+  const spinner = document.createElement("div");
+  spinner.id = "global-spinner";
+  spinner.innerHTML = `
+    <div style="
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0,0,0,0.3); 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 9999;
+    ">
+      <div style="
+        width: 50px; 
+        height: 50px; 
+        border: 5px solid #ccc; 
+        border-top: 5px solid #3498db; 
+        border-radius: 50%; 
+        animation: spin 1s linear infinite;
+      "></div>
+    </div>
+  `;
+  document.body.appendChild(spinner);
+}
+
+function hideSpinner() {
+  const spinner = document.getElementById("global-spinner");
+  if (spinner) spinner.remove();
+}
+
+// Keyframes CSS
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}`;
+document.head.appendChild(style);
 
 /* ---- View-specific logic ---- */
 
@@ -95,6 +138,7 @@ function initLogin() {
     msg.className = "feedback loading";
 
     try {
+      showSpinner();
       const response = await loginUser({
         email: emailInput.value.trim(),
         password: passInput.value.trim(),
@@ -112,7 +156,9 @@ function initLogin() {
     } catch (err) {
       msg.textContent = `Login failed: ${err.message}`;
       msg.className = "feedback error";
-    }
+    } finally {
+    hideSpinner();
+  }
   });
 }
 
@@ -132,6 +178,7 @@ function initRegister() {
     msg.textContent = "";
     msg.className = "feedback";
     try {
+      showSpinner();
       const userData = {
         name: document.getElementById("name").value.trim(),
         lastName: document.getElementById("lastname").value.trim(),
@@ -161,7 +208,8 @@ function initRegister() {
     catch (err) {
       msg.textContent = `Registration failed: ${err.message}`;
       msg.classList.add("error");
-
+    } finally{
+      hideSpinner();
     }
   });
 
@@ -179,15 +227,18 @@ function initRecover() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    msg.textContent = "";
+    msg.textContent = "Requesting recovery...";
 
     try {
+      showSpinner();
       await recoverPassword({
-        email: document.getElementById("recoverEmail").value.trim(),
+        email: document.getElementById("email").value.trim(),
       });
       msg.textContent = "Recovery email sent!";
     } catch (err) {
       msg.textContent = `Recovery failed: ${err.message}`;
+    } finally {
+      hideSpinner();
     }
   });
 }
@@ -227,6 +278,7 @@ function initDashboard() {
     e.preventDefault();
 
 try {
+  showSpinner();
   // User validation from HEAD (important for security)
   const currentUser = getCurrentUser();
   console.log("Current user from localStorage:", currentUser); // Debug log
@@ -299,6 +351,8 @@ try {
 } catch (err) {
   console.error("Something went wrong:", err.message);
   alert(`Error creating task: ${err.message}`);
+} finally {
+  hideSpinner();
 }
   });
 }

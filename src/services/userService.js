@@ -1,4 +1,5 @@
 import { http } from "../api/http.js";
+import { showToast } from "./toastService.js";
 
 /**
  * Register a new user in the system.
@@ -14,9 +15,24 @@ import { http } from "../api/http.js";
  * @returns {Promise<Object>} The created user object returned by the API.
  * @throws {Error} If the API responds with an error.
  */
+
 export async function registerUser({ name, lastName, age, email, password }) {
-  return http.post("/api/users/register", { name, lastName, age, email, password });
+  try {
+    const response = await http.post("/api/users/register", { name, lastName, age, email, password });
+
+    showToast("Successfully created account", "success");
+
+    setTimeout(() => {
+       location.hash = "#/login";
+    }, 400);
+
+    return response;
+  } catch (err) {
+    showToast("Error creating account", "error");
+    throw err;
+  }
 }
+
 
 /**
  * Login a user into the system.
@@ -44,5 +60,67 @@ export async function loginUser({ email, password }) {
  * @throws {Error} If the API responds with an error.
  */
 export async function recoverPassword({ email }) {
-  return http.post("/api/users/recover", { email });
+  try {
+    const response = await http.post("/api/users/recover", { email });
+
+    showToast("Check your email to continue", "success");
+
+    return response;
+  } catch (err) {
+    showToast("Error requesting recovery", "error");
+    throw err;
+  }
+}
+
+/**
+ * Logout a user from the system (client side only).
+ *
+ * @async
+ * @function logoutUser
+ * @returns {Promise<void>} Redirects user to home after logout
+ */
+export async function logoutUser() {
+  try {
+    localStorage.removeItem("authToken");
+    sessionStorage.removeItem("authToken");
+
+    showToast("Successfully logged out", "success");
+
+    setTimeout(() => {
+      window.location.href = "/#/home";
+    }, 500);
+  } catch (err) {
+    showToast("Logout error", "error");
+    throw err;
+  }
+}
+/**
+ * Reset user password.
+ *
+ * @async
+ * @function resetPassword
+ * @param {Object} params - Reset data.
+ * @param {string} params.token - Token de verificación enviado al correo.
+ * @param {string} params.newPassword - La nueva contraseña del usuario.
+ * @returns {Promise<Object>} Response from the API.
+ * @throws {Error} If the API responds with an error.
+ */
+export async function resetPassword({ token, newPassword }) {
+  try {
+    const response = await http.post("/api/users/reset-password", {
+      token,
+      newPassword,
+    });
+
+    showToast("Updated password", "success");
+
+    setTimeout(() => {
+      window.location.href = "/#/login";
+    }, 500);
+
+    return response;
+  } catch (err) {
+    showToast("Error updating password", "error");
+    throw err;
+  }
 }
