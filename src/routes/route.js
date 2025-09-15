@@ -1,5 +1,6 @@
 import { registerUser, loginUser, recoverPassword } from "../services/userService.js";
 import { createTask } from "../services/taskService.js";
+
 import logo from "../assets/img/logoPI.jpg";
 
 import '../styles/login.css';
@@ -76,6 +77,48 @@ function handleRoute() {
     app.innerHTML = `<p style="color:#ff4d4d">Error loading the view.</p>`;
   });
 }
+function showSpinner() {
+  const spinner = document.createElement("div");
+  spinner.id = "global-spinner";
+  spinner.innerHTML = `
+    <div style="
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0,0,0,0.3); 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 9999;
+    ">
+      <div style="
+        width: 50px; 
+        height: 50px; 
+        border: 5px solid #ccc; 
+        border-top: 5px solid #3498db; 
+        border-radius: 50%; 
+        animation: spin 1s linear infinite;
+      "></div>
+    </div>
+  `;
+  document.body.appendChild(spinner);
+}
+
+function hideSpinner() {
+  const spinner = document.getElementById("global-spinner");
+  if (spinner) spinner.remove();
+}
+
+// Keyframes CSS
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}`;
+document.head.appendChild(style);
 
 /* ---- View-specific logic ---- */
 
@@ -104,9 +147,17 @@ function initLogin() {
 
   if (!form) return;
 
+  [emailInput, passInput].forEach(input => {
+    input.addEventListener("input", () => {
+      msg.textContent = "";
+      msg.className = "feedback"; // resetea estilos
+    });
+  });
+
   //Función de validación dinámica
   const validateForm = () => {
-    const emailOk = emailInput.value.trim().length > 0 && emailInput.value.includes("@");
+    const emailOk = emailInput.value.trim().length > 0; // && emailInput.value.includes("@")
+
     const passOk = passInput.value.trim().length > 0;
 
     const valid = emailOk && passOk;
@@ -121,18 +172,19 @@ function initLogin() {
   //Envío del formulario
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    msg.textContent = "Processing login...";
+    msg.textContent = "Iniciando sesion...";
     msg.className = "feedback loading";
     btn.disabled = true; 
 
     if (!validateForm()) {
-      msg.textContent = "Please enter a valid email and password.";
+      msg.textContent = "Ingresa credenciales validas para iniciar sesion";
       msg.className = "feedback error";
       btn.disabled = false;
       return;
     }
 
     try {
+      showSpinner();
       const response = await loginUser({
         email: emailInput.value.trim(),
         password: passInput.value.trim(),
@@ -143,15 +195,17 @@ function initLogin() {
         localStorage.setItem("isLoggedIn", "true");
       }
 
-      msg.textContent = "Login successful!";
+      msg.textContent = "Inicio de sesión exitoso!";
       msg.className = "feedback success";
 
       setTimeout(() => (location.hash = "#/dashboard"), 800);
     } catch (err) {
-      msg.textContent = `Login failed: ${err.message}`;
+      msg.textContent = `Inicio de sesion fallido: ${err.message}`;
       msg.className = "feedback error";
       btn.disabled = false;
-    }
+    } finally {
+    hideSpinner();
+  }
   });
 
   // inicializar validación al cargar
@@ -171,6 +225,14 @@ function initRegister() {
 
   if (!form) return;
 
+  const inputs = form.querySelectorAll("input");
+  inputs.forEach(input => {
+    input.addEventListener("input", () => {
+      msg.textContent = "";
+      msg.className = "feedback"; // reset estilos
+    });
+  });
+  
   const nameInput = document.getElementById("name");
   const lastNameInput = document.getElementById("lastName");
   const ageInput = document.getElementById("age");
@@ -179,22 +241,20 @@ function initRegister() {
   const confirmInput = document.getElementById("confirm");
 
   const validateForm = () => {
-    const nameOk = nameInput.value.trim().length >= 2;
-    const lastNameOk = lastNameInput.value.trim().length >= 2;
-    const ageOk = ageInput.value.trim() !== "" && !isNaN(ageInput.value) && parseInt(ageInput.value) >= 13;
-    const emailOk = emailInput.value.includes("@") && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
-    const passOk = passwordInput.value.trim().length >= 8;
-    const confirmOk = passwordInput.value === confirmInput.value && confirmInput.value.length > 0;
+    // Check if any field is empty
+    const nameNotEmpty = nameInput.value.trim().length > 0;
+    const lastNameNotEmpty = lastNameInput.value.trim().length > 0;
+    const ageNotEmpty = ageInput.value.trim().length > 0;
+    const emailNotEmpty = emailInput.value.trim().length > 0;
+    const passwordNotEmpty = passwordInput.value.trim().length > 0;
+    const confirmNotEmpty = confirmInput.value.trim().length > 0;
 
-    const passwordComplexOk = /[A-Z]/.test(passwordInput.value) && 
-                              /[0-9]/.test(passwordInput.value) && 
-                              /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(passwordInput.value);
-
-    const valid = nameOk && lastNameOk && ageOk && emailOk && passOk && passwordComplexOk && confirmOk;
+    const allFieldsFilled = nameNotEmpty && lastNameNotEmpty && ageNotEmpty && 
+                           emailNotEmpty && passwordNotEmpty && confirmNotEmpty;
     
-    btn.disabled = !valid;
+    btn.disabled = !allFieldsFilled;
 
-    return valid;
+    return allFieldsFilled;
   };
 
   [nameInput, lastNameInput, ageInput, emailInput, passwordInput, confirmInput].forEach(input => {
@@ -209,7 +269,14 @@ function initRegister() {
     msg.textContent = "";
     msg.className = "feedback";
 
+    if (!validateForm()) {
+      msg.textContent = "Completa todos los campos para registrarte";
+      msg.className = "feedback error";
+      return;
+    }
+
     try {
+      showSpinner();
       const userData = {
         name: nameInput.value.trim(),
         lastName: lastNameInput.value.trim(),
@@ -219,36 +286,42 @@ function initRegister() {
       };
 
       const confirmPassword = confirmInput.value.trim();
+      
       if (userData.password !== confirmPassword) {
-        msg.textContent = "Las contraseñas no coinciden";
-        msg.classList.add("error");
+        msg.textContent = "Las contraseñas ingresadas no coinciden";
+        msg.className = "feedback error";
         return;
       }
 
       const validation = validateRegisterForm(userData);
       if (!validation.isValid) {
         msg.textContent = validation.error;
-        msg.classList.add("error");
+        msg.className = "feedback error";
         return;
       }
 
-      btn.disabled = true;
-      msg.textContent = "Creating account...";
+      btn.disabled = true; // Disable during submission
+      msg.textContent = "Creando una cuenta...";
       msg.className = "feedback loading";
 
       await registerUser(userData);
-      msg.textContent = "Registration successful!";
-      msg.classList.add("success");
+      msg.textContent = "Registro exitoso!";
+      msg.className = "feedback success";
 
       form.reset();
-      setTimeout(() => (location.hash = "#/login"), 1500);
+      setTimeout(() => (location.hash = "#/login"), 800);
 
     } catch (err) {
-      console.error("Registration error:", err);
-      msg.textContent = `Registration failed: ${err.message}`;
-      msg.classList.add("error");
+      console.error("Error registrandote:", err);
+
+      let errorMessage = err;
+
+      msg.textContent = errorMessage;
+      msg.className = "feedback error";
       
       validateForm();
+    } finally {
+      hideSpinner();
     }
   });
 
@@ -265,17 +338,25 @@ function initRecover() {
 
   if (!form) return;
 
+emailInput.addEventListener("input", () => {
+    msg.textContent = "";
+    msg.className = "feedback"; // resetea estilos
+  });
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    msg.textContent = "";
+    msg.textContent = "Solicitando recuperacion de contraseña...";
 
     try {
+      showSpinner();
       await recoverPassword({
-        email: document.getElementById("recoverEmail").value.trim(),
+        email: document.getElementById("email").value.trim(),
       });
-      msg.textContent = "Recovery email sent!";
+      msg.textContent = "Correo de recuperacion enviado exitosamente!";
     } catch (err) {
-      msg.textContent = `Recovery failed: ${err.message}`;
+      msg.textContent = `No se ha podido enviar el correo de recuperacion: ${err.message}`;
+    } finally {
+      hideSpinner();
     }
   });
 }
@@ -311,10 +392,19 @@ function initDashboard() {
 
   if (!form) return;
 
+ const inputs = form.querySelectorAll("input, select");
+  inputs.forEach(input => {
+    input.addEventListener("input", () => {
+      msg.textContent = "";
+      msg.className = "feedback";
+    });
+  });
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
 try {
+  showSpinner();
   // User validation from HEAD (important for security)
   const currentUser = getCurrentUser();
   console.log("Current user from localStorage:", currentUser); // Debug log
@@ -387,6 +477,8 @@ try {
 } catch (err) {
   console.error("Something went wrong:", err.message);
   alert(`Error creating task: ${err.message}`);
+} finally {
+  hideSpinner();
 }
   });
 }
@@ -456,7 +548,6 @@ function validateRegisterForm(userData) {
     text = "La contraseña debe de contener al menos 8 caracteres e incluir una mayuscula, un caracter especial y un numero";
     return { isValid: false, error: text };
   }
-  // Añadir error al no ingresar correo valido
   else {
     return { isValid: true, error: null };
   }
