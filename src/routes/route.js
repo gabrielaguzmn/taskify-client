@@ -485,7 +485,7 @@ email.addEventListener("input", () => {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    msg.textContent = "Solicitando recuperacion de contraseña...";
+    msg.textContent = "Solicitando recuperación...";
 
     try {
       showSpinner();
@@ -501,7 +501,7 @@ email.addEventListener("input", () => {
   });
 }
 
-/**
+/** 
  * Initialize the "dashboard" view.
  * Handles CRUD operations for tasks.
  */
@@ -512,6 +512,12 @@ function initDashboard() {
   const close = document.getElementById("closeModal");
   const modal = document.getElementById("taskModal");
 
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      logout();
+    });
+  }
 
   if (open && close && modal) {
     const toggle = (show) => {
@@ -671,11 +677,12 @@ export function isLoggedIn() {
 /**
  * Logout user
  */
-export function logout() {
-  localStorage.removeItem('currentUser');
-  localStorage.removeItem('isLoggedIn');
-  location.hash = '#/login';
+export function logout() { 
+  localStorage.removeItem('currentUser'); 
+  localStorage.removeItem('isLoggedIn'); 
+  location.hash = '#/login'; 
 }
+
 
 function validateRegisterForm(userData) {
   let text = "";
