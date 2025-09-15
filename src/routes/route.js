@@ -45,8 +45,10 @@ async function loadView(name) {
     if (imgEl) imgEl.src = logo;
   }
 
+  if (name === "home") initHome();
   if (name === "login") initLogin();
   if (name === "register") initRegister();
+  if (name === "changePassword") initChangePassword();
   if (name === "recover") initRecover();
   if (name === "dashboard") initDashboard();
 }
@@ -65,9 +67,9 @@ export function initRouter() {
  * Fallback to 'login' if the route is unknown.
  */
 function handleRoute() {
-  const path = (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "login";
-  const known = ["login", "register", "recover", "dashboard"];
-  const route = known.includes(path) ? path : "login";
+  const path = (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
+  const known = ["home", "login", "register", "recover", "dashboard", "changePassword"];
+  const route = known.includes(path) ? path : "home";
 
   loadView(route).catch((err) => {
     console.error(err);
@@ -76,6 +78,18 @@ function handleRoute() {
 }
 
 /* ---- View-specific logic ---- */
+
+function initHome() {
+  const buttons = document.querySelectorAll("[data-route]");
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const route = btn.getAttribute("data-route");
+      location.hash = `#/${route}`;
+    });
+  });
+}
 
 /**
  * Initialize the "login" view.
@@ -86,13 +100,37 @@ function initLogin() {
   const emailInput = document.getElementById("email");
   const passInput = document.getElementById("password");
   const msg = document.getElementById("loginMsg");
+  const btn = document.getElementById("loginBtn"); 
 
   if (!form) return;
 
+  //Función de validación dinámica
+  const validateForm = () => {
+    const emailOk = emailInput.value.trim().length > 0 && emailInput.value.includes("@");
+    const passOk = passInput.value.trim().length > 0;
+
+    const valid = emailOk && passOk;
+    btn.disabled = !valid; // desactiva si algo no está válido
+    return valid;
+  };
+
+  // Validar en cada cambio
+  emailInput.addEventListener("input", validateForm);
+  passInput.addEventListener("input", validateForm);
+
+  //Envío del formulario
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     msg.textContent = "Processing login...";
     msg.className = "feedback loading";
+    btn.disabled = true; 
+
+    if (!validateForm()) {
+      msg.textContent = "Please enter a valid email and password.";
+      msg.className = "feedback error";
+      btn.disabled = false;
+      return;
+    }
 
     try {
       const response = await loginUser({
@@ -112,9 +150,14 @@ function initLogin() {
     } catch (err) {
       msg.textContent = `Login failed: ${err.message}`;
       msg.className = "feedback error";
+      btn.disabled = false;
     }
   });
+
+  // inicializar validación al cargar
+  validateForm();
 }
+
 
 
 /**
@@ -124,47 +167,92 @@ function initLogin() {
 function initRegister() {
   const form = document.getElementById("registerForm");
   const msg = document.getElementById("registerMsg");
+  const btn = document.getElementById("registerBtn");
 
   if (!form) return;
+
+  const nameInput = document.getElementById("name");
+  const lastNameInput = document.getElementById("lastName");
+  const ageInput = document.getElementById("age");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const confirmInput = document.getElementById("confirm");
+
+  const validateForm = () => {
+    const nameOk = nameInput.value.trim().length >= 2;
+    const lastNameOk = lastNameInput.value.trim().length >= 2;
+    const ageOk = ageInput.value.trim() !== "" && !isNaN(ageInput.value) && parseInt(ageInput.value) >= 13;
+    const emailOk = emailInput.value.includes("@") && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+    const passOk = passwordInput.value.trim().length >= 8;
+    const confirmOk = passwordInput.value === confirmInput.value && confirmInput.value.length > 0;
+
+    const passwordComplexOk = /[A-Z]/.test(passwordInput.value) && 
+                              /[0-9]/.test(passwordInput.value) && 
+                              /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(passwordInput.value);
+
+    const valid = nameOk && lastNameOk && ageOk && emailOk && passOk && passwordComplexOk && confirmOk;
+    
+    btn.disabled = !valid;
+
+    return valid;
+  };
+
+  [nameInput, lastNameInput, ageInput, emailInput, passwordInput, confirmInput].forEach(input => {
+    if (input) {
+      input.addEventListener("input", validateForm);
+      input.addEventListener("blur", validateForm);
+    }
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     msg.textContent = "";
     msg.className = "feedback";
+
     try {
       const userData = {
-        name: document.getElementById("name").value.trim(),
-        lastName: document.getElementById("lastname").value.trim(),
-        age: document.getElementById("age").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        password: document.getElementById("password").value.trim(),
+        name: nameInput.value.trim(),
+        lastName: lastNameInput.value.trim(),
+        age: parseInt(ageInput.value.trim(), 10),
+        email: emailInput.value.trim(),
+        password: passwordInput.value.trim(),
       };
-      if (validateRegisterForm(userData).isValid) {
-        if (userData.password == document.getElementById("confirm").value.trim()) {
-          await registerUser(userData);
-          console.log("The register was sucessful !!!!!");
-          msg.textContent = "Registration successful!";
-          msg.classList.add("success");
-          setTimeout(() => (location.hash = "#/login"), 400);
-        }
-        else {
-          console.log("La contraseña no coincide");
-          msg.textContent = "La contraseña ingresada no coincide"
-          msg.classList.add("error")
-        }
+
+      const confirmPassword = confirmInput.value.trim();
+      if (userData.password !== confirmPassword) {
+        msg.textContent = "Las contraseñas no coinciden";
+        msg.classList.add("error");
+        return;
       }
-      else {
-        msg.textContent = validateRegisterForm(userData).error
-        msg.classList.add("error")
+
+      const validation = validateRegisterForm(userData);
+      if (!validation.isValid) {
+        msg.textContent = validation.error;
+        msg.classList.add("error");
+        return;
       }
-    }
-    catch (err) {
+
+      btn.disabled = true;
+      msg.textContent = "Creating account...";
+      msg.className = "feedback loading";
+
+      await registerUser(userData);
+      msg.textContent = "Registration successful!";
+      msg.classList.add("success");
+
+      form.reset();
+      setTimeout(() => (location.hash = "#/login"), 1500);
+
+    } catch (err) {
+      console.error("Registration error:", err);
       msg.textContent = `Registration failed: ${err.message}`;
       msg.classList.add("error");
-
+      
+      validateForm();
     }
   });
 
+  validateForm();
 }
 
 /**
