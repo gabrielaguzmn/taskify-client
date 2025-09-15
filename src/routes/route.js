@@ -1,4 +1,4 @@
-import { registerUser, loginUser, recoverPassword } from "../services/userService.js";
+import { registerUser, loginUser, recoverPassword, resetPassword } from "../services/userService.js";
 import { createTask } from "../services/taskService.js";
 
 import logo from "../assets/img/logoPI.jpg";
@@ -67,16 +67,29 @@ export function initRouter() {
  * Handle the current route based on the location hash.
  * Fallback to 'login' if the route is unknown.
  */
+
 function handleRoute() {
-  const path = (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
+  // Get the full hash including query parameters
+  const fullHash = location.hash.startsWith("#/") ? location.hash.slice(2) : "";
+  
+  // Split path from query parameters
+  const [path, queryString] = fullHash.split('?');
+  
+  // Default to 'home' if no path
+  const routePath = path || "home";
+  
   const known = ["home", "login", "register", "recover", "dashboard", "changePassword"];
-  const route = known.includes(path) ? path : "home";
+  const route = known.includes(routePath) ? routePath : "home";
+
+  // Store query parameters globally so views can access them
+  window.currentQueryParams = queryString ? new URLSearchParams(queryString) : new URLSearchParams();
 
   loadView(route).catch((err) => {
     console.error(err);
     app.innerHTML = `<p style="color:#ff4d4d">Error loading the view.</p>`;
   });
 }
+
 function showSpinner() {
   const spinner = document.createElement("div");
   spinner.id = "global-spinner";
@@ -132,6 +145,133 @@ function initHome() {
       location.hash = `#/${route}`;
     });
   });
+}
+
+function initChangePassword() {
+let token = null;
+
+    if (window.currentQueryParams) {
+    token = window.currentQueryParams.get('token');
+  }
+  
+  // Method 2: Fallback - try to get from URL search params directly
+  if (!token) {
+    const urlParams = new URLSearchParams(window.location.search);
+    token = urlParams.get('token');
+  }
+  
+  // Method 3: Fallback - try to get from hash part after '?'
+  if (!token) {
+    const hashPart = window.location.hash;
+    if (hashPart.includes('?')) {
+      const queryPart = hashPart.split('?')[1];
+      const params = new URLSearchParams(queryPart);
+      token = params.get('token');
+    }
+  }
+  
+  const form = document.getElementById("changePasswordForm");
+  const msg = document.getElementById("changePasswordMsg");
+  const acceptBtn = document.getElementById("acceptBtn");
+  const newPasswordInput = document.getElementById("newPassword");
+  const confirmPasswordInput = document.getElementById("confirmPassword");
+  const tokenInput = document.getElementById("resetToken");
+
+  if (!form) return;
+
+  // Show message helper function
+  function showMessage(text, type = 'info') {
+    if (msg) {
+      msg.textContent = text;
+      msg.className = `feedback ${type}`;
+    }
+  }
+
+  // Store token in hidden field
+  if (tokenInput && token) {
+    tokenInput.value = token;
+  }
+
+  // Check if token exists
+  if (!token) {
+    showMessage('Invalid or missing reset token. Please request a new password reset.', 'error');
+    if (acceptBtn) acceptBtn.disabled = true;
+    console.error('Invalid token:', token);
+    return;
+  }
+
+  // Clear messages on input
+  [newPasswordInput, confirmPasswordInput].forEach(input => {
+    if (input) {
+      input.addEventListener("input", () => {
+        showMessage('', '');
+      });
+    }
+  });
+
+  // Form validation function
+  function validateForm() {
+    if (!newPasswordInput || !confirmPasswordInput || !acceptBtn) return false;
+    
+    const newPassword = newPasswordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    
+    if (newPassword.length >= 8 && newPassword === confirmPassword) {
+      acceptBtn.disabled = false;
+      showMessage('', '');
+      return true;
+    } else {
+      acceptBtn.disabled = true;
+      if (newPassword.length > 0 && confirmPassword.length > 0 && newPassword !== confirmPassword) {
+        showMessage('Passwords do not match', 'error');
+      }
+      return false;
+    }
+  }
+
+  // Add event listeners for real-time validation
+  if (newPasswordInput) newPasswordInput.addEventListener('input', validateForm);
+  if (confirmPasswordInput) confirmPasswordInput.addEventListener('input', validateForm);
+
+  // Handle form submission
+  if (acceptBtn) {
+    acceptBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      if (!validateForm()) {
+        showMessage('Passwords must be at least 8 characters and match', 'error');
+        return;
+      }
+
+      const newPassword = newPasswordInput.value;
+      
+      acceptBtn.disabled = true;
+      acceptBtn.textContent = 'Resetting...';
+      showMessage('Resetting password...', 'loading');
+
+      try {
+        showSpinner();
+        
+        const result = await resetPassword(token, newPassword);
+        showMessage('Password reset successfully! Redirecting to login...', 'success');
+        
+        setTimeout(() => {
+          location.hash = '#/login';
+        }, 5000);
+
+      } catch (error) {
+        console.error('Password reset error:', error);
+        showMessage(error.message || 'An error occurred. Please try again.', 'error');
+        acceptBtn.disabled = false;
+        acceptBtn.textContent = 'Accept';
+      } finally {
+        hideSpinner();
+      }
+    });
+  }
+
+  // Initial validation
+  validateForm();
 }
 
 /**
@@ -338,7 +478,7 @@ function initRecover() {
   const emailInput = document.getElementById("email");
   if (!form) return;
 
-emailInput.addEventListener("input", () => {
+email.addEventListener("input", () => {
     msg.textContent = "";
     msg.className = "feedback"; // resetea estilos
   });

@@ -41,6 +41,22 @@ export async function registerUser({ name, lastName, age, email, password }) {
   }
 }
 
+export async function resetPassword(token, newPassword) {
+  try {
+    const response = await http.put("/api/users/changePassword", {token, newPassword})
+
+    showToast("Successfully changed password", "success")
+
+setTimeout(() => {
+       location.hash = "#/login";
+    }, 5000);
+
+    return response;
+  } catch (err) {
+    showToast("Error changing password", "error");
+    throw err;
+  }
+}
 
 /**
  * Login a user into the system.
@@ -118,36 +134,6 @@ export async function logoutUser() {
     }, 500);
   } catch (err) {
     showToast("Logout error", "error");
-    throw err;
-  }
-}
-/**
- * Reset user password.
- *
- * @async
- * @function resetPassword
- * @param {Object} params - Reset data.
- * @param {string} params.token - Token de verificación enviado al correo.
- * @param {string} params.newPassword - La nueva contraseña del usuario.
- * @returns {Promise<Object>} Response from the API.
- * @throws {Error} If the API responds with an error.
- */
-export async function resetPassword({ token, newPassword }) {
-  try {
-    const response = await http.post("/api/users/reset-password", {
-      token,
-      newPassword,
-    });
-
-    showToast("Updated password", "success");
-
-    setTimeout(() => {
-      window.location.href = "/#/login";
-    }, 500);
-
-    return response;
-  } catch (err) {
-    showToast("Error updating password", "error");
     throw err;
   }
 }
