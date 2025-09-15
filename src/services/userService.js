@@ -28,7 +28,15 @@ export async function registerUser({ name, lastName, age, email, password }) {
 
     return response;
   } catch (err) {
-    showToast("Error creating account", "error");
+    const status = err.response?.status;
+    const backendMessage = err.response?.data?.message;
+    console.log(status)
+    if (status >= 500) {
+      showToast("Intenta de nuevo más tarde", "error");
+    } else {
+      showToast(backendMessage || err.message || "Error creating account", "error");
+    }
+
     throw err;
   }
 }
@@ -46,7 +54,18 @@ export async function registerUser({ name, lastName, age, email, password }) {
  * @throws {Error} If the API responds with an error.
  */
 export async function loginUser({ email, password }) {
-  return http.post("/api/users/login", { email, password });
+  try {
+    const response = await http.post("/api/users/login", { email, password });
+    return response;
+  } catch (err) {
+    if (err.status >= 500) {
+      showToast("Intenta de nuevo más tarde", "error");
+    } else {
+      showToast(err.message || "Error al iniciar sesión", "error");
+    }
+
+    throw err; 
+  }
 }
 
 /**
@@ -67,10 +86,18 @@ export async function recoverPassword({ email }) {
 
     return response;
   } catch (err) {
-    showToast("Error requesting recovery", "error");
-    throw err;
+    if (err.status >= 500) {
+      // Error genérico de servidor
+      showToast("Intenta de nuevo más tarde", "error");
+    } else {
+      // Error específico desde el backend
+      showToast(err.message || "Error requesting recovery", "error");
+    }
+
+    throw err; // relanzamos por si se maneja más arriba
   }
 }
+
 
 /**
  * Logout a user from the system (client side only).

@@ -37,9 +37,14 @@ async function request(path, { method = 'GET', headers = {}, body } = {}) {
   const payload = isJSON ? await res.json().catch(() => null) : null;
 
   if (!res.ok) {
-    const msg = payload?.message || payload?.error || `HTTP ${res.status}`;
-    throw new Error(msg);
-  }
+  const msg = payload?.message || payload?.error || `HTTP ${res.status}`;
+  throw {
+    status: res.status,
+    message: msg,
+    payload,
+  };
+}
+
 
   return payload;
 }

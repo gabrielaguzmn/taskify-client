@@ -335,7 +335,7 @@ function initRegister() {
 function initRecover() {
   const form = document.getElementById("recoverForm");
   const msg = document.getElementById("recoverMsg");
-
+  const emailInput = document.getElementById("email");
   if (!form) return;
 
 emailInput.addEventListener("input", () => {
