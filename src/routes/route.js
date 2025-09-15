@@ -1,5 +1,5 @@
 import { registerUser, loginUser, recoverPassword, resetPassword } from "../services/userService.js";
-import { createTask } from "../services/taskService.js";
+import { getTasks, createTask } from "../services/taskService.js";
 
 import logo from "../assets/img/logoPI.jpg";
 
@@ -511,6 +511,7 @@ function initDashboard() {
   const open = document.getElementById("openModal");
   const close = document.getElementById("closeModal");
   const modal = document.getElementById("taskModal");
+  const msg = document.getElementById("taskMsg"); // ✅ Add this line
 
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
@@ -519,113 +520,140 @@ function initDashboard() {
     });
   }
 
-  if (open && close && modal) {
-    const toggle = (show) => {
-      modal.classList.toggle("open", show);
-      modal.setAttribute("aria-hidden", show ? "false" : "true");
-      if (show) document.getElementById("title").focus();
-    };
+  if (!form || !modal || !open || !close) return;
 
-    open.addEventListener("click", () => toggle(true));
-    close.addEventListener("click", () => toggle(false));
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) toggle(false);
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") toggle(false);
-    });
-  }
+  // --- Toggle modal ---
+  const toggle = (show) => {
+    modal.classList.toggle("open", show);
+    modal.setAttribute("aria-hidden", show ? "false" : "true");
+    if (show) document.getElementById("title").focus();
+  };
 
-  if (!form) return;
+  open.addEventListener("click", () => toggle(true));
+  close.addEventListener("click", () => toggle(false));
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) toggle(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") toggle(false);
+  });
 
- const inputs = form.querySelectorAll("input, select");
+  const inputs = form.querySelectorAll("input, select");
   inputs.forEach(input => {
     input.addEventListener("input", () => {
-      msg.textContent = "";
-      msg.className = "feedback";
+      if (msg) { // ✅ Add safety check
+        msg.textContent = "";
+        msg.className = "feedback";
+      }
     });
   });
+
+  const renderTask = (task) => {
+    const taskCard = document.createElement("div");
+    taskCard.className = "task-card";
+    taskCard.innerHTML = `
+      <h3>${task.title || "Untitled Task"}</h3>
+      <p>${task.description || "No description"}</p>
+      <div class="meta">
+        <span>📅 ${task.date}</span>
+        <span>⏰ ${task.time}</span>
+      </div>
+      <div class="actions">
+        <button class="edit">✏️</button>
+        <button class="delete">🗑️</button>
+      </div>
+    `;
+
+    if (task.status === "to do") {
+      document.getElementById("todoList").appendChild(taskCard);
+    } else if (task.status === "doing") {
+      document.getElementById("doingList").appendChild(taskCard);
+    } else if (task.status === "done") {
+      document.getElementById("doneList").appendChild(taskCard);
+    }
+  };
+
+  // --- Cargar tareas al iniciar ---
+  (async () => {
+    try {
+      const tasks = await getTasks();
+      tasks.forEach(renderTask);
+    } catch (err) {
+      console.error("Error loading tasks:", err);
+    }
+  })();
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-try {
-  showSpinner();
-  // User validation from HEAD (important for security)
-  const currentUser = getCurrentUser();
-  console.log("Current user from localStorage:", currentUser); // Debug log
+    try {
+      showSpinner();
+      
+      const currentUser = getCurrentUser();
+      console.log("Current user from localStorage:", currentUser);
 
-  // Better validation
-  if (!currentUser) {
-    console.error("No user found in localStorage");
-    alert("Please log in again");
-    location.hash = "#/login";
-    return;
-  }
+      if (!currentUser) {
+        console.error("No user found in localStorage");
+        alert("Please log in again");
+        location.hash = "#/login";
+        return;
+      }
 
-  if (!currentUser.id) {
-    console.error("User object missing _id:", currentUser);
-    alert("Invalid user session. Please log in again");
-    location.hash = "#/login";
-    return;
-  }
+      if (!currentUser.id) {
+        console.error("User object missing _id:", currentUser);
+        alert("Invalid user session. Please log in again");
+        location.hash = "#/login";
+        return;
+      }
 
-  // Date/time collection from KevinPrado/Features (matches your HTML)
-  const day = document.getElementById("day").value.padStart(2, "0");
-  const month = document.getElementById("month").value.padStart(2, "0");
-  const year = document.getElementById("year").value;
+      const day = document.getElementById("day").value.padStart(2, "0");
+      const month = document.getElementById("month").value.padStart(2, "0");
+      const year = document.getElementById("year").value;
 
-  const hour = document.getElementById("hour").value.padStart(2, "0");
-  const minute = document.getElementById("minute").value.padStart(2, "0");
+      const hour = document.getElementById("hour").value.padStart(2, "0");
+      const minute = document.getElementById("minute").value.padStart(2, "0");
 
-  // Validate required fields
-  if (!day || !month || !year) {
-    alert("Please fill in all date fields (day, month, year)");
-    return;
-  }
+      if (!day || !month || !year) {
+        alert("Please fill in all date fields (day, month, year)");
+        return;
+      }
 
-  // Build date and time strings
-  const dateString = `${year}-${month}-${day}`;
-  const timeString = `${hour}:${minute}`;
+      const dateString = `${year}-${month}-${day}`;
+      const timeString = `${hour}:${minute}`;
 
-  // Create combined Date object for better backend compatibility
-  let combinedDate;
-  if (hour && minute) {
-    // If time is provided, combine date and time
-    combinedDate = new Date(`${dateString}T${timeString}:00`);
-  } else {
-    // If no time provided, use start of day
-    combinedDate = new Date(`${dateString}T00:00:00`);
-  }
+      let combinedDate;
+      if (hour && minute) {
+        combinedDate = new Date(`${dateString}T${timeString}:00`);
+      } else {
+        combinedDate = new Date(`${dateString}T00:00:00`);
+      }
 
-  // Task data object (combining both approaches)
-  const TaskData = {
-    title: document.getElementById("title").value.trim(),
-    description: document.getElementById("description").value.trim(),
-    date: combinedDate, // Single Date object for backend
-    dateString, // Keep string version if needed
-    timeString, // Keep string version if needed
-    status: document.getElementById("status").value,
-    userId: currentUser.id // Important: include user ID
-  };
+      const TaskData = {
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        date: combinedDate,
+        dateString,
+        timeString,
+        status: document.getElementById("status").value,
+        userId: currentUser.id
+      };
 
-  console.log("Task data to be sent:", TaskData); // Debug log
-  await createTask(TaskData);
-  console.log("Task created successfully:", TaskData);
+      console.log("Task data to be sent:", TaskData);
+      const savedTask = await createTask(TaskData);
+      renderTask(savedTask);
 
-  // Clear form and close modal after success
-  form.reset();
-  if (modal) {
-    modal.classList.remove("open");
-    modal.setAttribute("aria-hidden", "true");
-  }
+      console.log("Task created successfully:", savedTask);
 
-} catch (err) {
-  console.error("Something went wrong:", err.message);
-  alert(`Error creating task: ${err.message}`);
-} finally {
-  hideSpinner();
-}
+      // ✅ Clean form reset and modal close
+      form.reset();
+      toggle(false);
+
+    } catch (err) {
+      console.error("Something went wrong:", err.message);
+      alert(`Error creating task: ${err.message}`);
+    } finally {
+      hideSpinner();
+    }
   });
 }
 

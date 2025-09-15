@@ -1,6 +1,7 @@
 import { http } from "../api/http.js";
 import { showToast } from "./toastService.js";
 
+
 /**
  * Register a new user in the system.
  *
@@ -62,18 +63,20 @@ setTimeout(() => {
  * @throws {Error} If the API responds with an error.
  */
 export async function loginUser({ email, password }) {
-  return http.post("/api/users/login", { email, password });
+  const res = await http.post("/api/users/login", { email, password });
+
+  if (res.user) {
+    localStorage.setItem("currentUser", JSON.stringify(res.user));
+    localStorage.setItem("isLoggedIn", "true");
+    if (res.token) {
+      localStorage.setItem("authToken", res.token);
+    }
+  }
+  return res;
 }
 
 /**
- * Send a password recovery request.
- *
- * @async
- * @function recoverPassword
- * @param {Object} params - Recovery data.
- * @param {string} params.email - The email of the user to recover.
- * @returns {Promise<Object>} Response from the API.
- * @throws {Error} If the API responds with an error.
+ * Password recovery
  */
 export async function recoverPassword({ email }) {
   try {
