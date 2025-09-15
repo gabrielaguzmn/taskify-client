@@ -67,9 +67,9 @@ export function initRouter() {
  * Fallback to 'login' if the route is unknown.
  */
 function handleRoute() {
-  const path = (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "login";
+  const path = (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
   const known = ["home", "login", "register", "recover", "dashboard", "changePassword"];
-  const route = known.includes(path) ? path : "login";
+  const route = known.includes(path) ? path : "home";
 
   loadView(route).catch((err) => {
     console.error(err);
@@ -171,15 +171,13 @@ function initRegister() {
 
   if (!form) return;
 
-  // ✅ Get all input elements
   const nameInput = document.getElementById("name");
-  const lastNameInput = document.getElementById("lastname");
+  const lastNameInput = document.getElementById("lastName");
   const ageInput = document.getElementById("age");
   const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
   const confirmInput = document.getElementById("confirm");
 
-  // ✅ Real-time validation function
   const validateForm = () => {
     const nameOk = nameInput.value.trim().length >= 2;
     const lastNameOk = lastNameInput.value.trim().length >= 2;
@@ -188,20 +186,17 @@ function initRegister() {
     const passOk = passwordInput.value.trim().length >= 8;
     const confirmOk = passwordInput.value === confirmInput.value && confirmInput.value.length > 0;
 
-    // Check password complexity
     const passwordComplexOk = /[A-Z]/.test(passwordInput.value) && 
                               /[0-9]/.test(passwordInput.value) && 
                               /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(passwordInput.value);
 
     const valid = nameOk && lastNameOk && ageOk && emailOk && passOk && passwordComplexOk && confirmOk;
     
-    // Enable/disable button based on validation
     btn.disabled = !valid;
 
     return valid;
   };
 
-  // ✅ Add real-time validation to all inputs
   [nameInput, lastNameInput, ageInput, emailInput, passwordInput, confirmInput].forEach(input => {
     if (input) {
       input.addEventListener("input", validateForm);
@@ -209,7 +204,6 @@ function initRegister() {
     }
   });
 
-  // ✅ Form submission with comprehensive validation
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     msg.textContent = "";
@@ -224,7 +218,6 @@ function initRegister() {
         password: passwordInput.value.trim(),
       };
 
-      // Check password confirmation
       const confirmPassword = confirmInput.value.trim();
       if (userData.password !== confirmPassword) {
         msg.textContent = "Las contraseñas no coinciden";
@@ -232,7 +225,6 @@ function initRegister() {
         return;
       }
 
-      // Use comprehensive validation
       const validation = validateRegisterForm(userData);
       if (!validation.isValid) {
         msg.textContent = validation.error;
@@ -240,7 +232,6 @@ function initRegister() {
         return;
       }
 
-      // Disable button during submission
       btn.disabled = true;
       msg.textContent = "Creating account...";
       msg.className = "feedback loading";
@@ -250,19 +241,17 @@ function initRegister() {
       msg.classList.add("success");
 
       form.reset();
-      setTimeout(() => (location.hash = "#/login"), 800);
+      setTimeout(() => (location.hash = "#/login"), 1500);
 
     } catch (err) {
       console.error("Registration error:", err);
       msg.textContent = `Registration failed: ${err.message}`;
       msg.classList.add("error");
       
-      // Re-enable button on error
       validateForm();
     }
   });
 
-  // Initialize validation on page load
   validateForm();
 }
 
