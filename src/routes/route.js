@@ -156,7 +156,8 @@ function initLogin() {
 
   //Función de validación dinámica
   const validateForm = () => {
-    const emailOk = emailInput.value.trim().length > 0 && emailInput.value.includes("@");
+    const emailOk = emailInput.value.trim().length > 0; // && emailInput.value.includes("@")
+
     const passOk = passInput.value.trim().length > 0;
 
     const valid = emailOk && passOk;
@@ -171,12 +172,12 @@ function initLogin() {
   //Envío del formulario
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    msg.textContent = "Processing login...";
+    msg.textContent = "Iniciando sesion...";
     msg.className = "feedback loading";
     btn.disabled = true; 
 
     if (!validateForm()) {
-      msg.textContent = "Please enter a valid email and password.";
+      msg.textContent = "Ingresa credenciales validas para iniciar sesion";
       msg.className = "feedback error";
       btn.disabled = false;
       return;
@@ -194,12 +195,12 @@ function initLogin() {
         localStorage.setItem("isLoggedIn", "true");
       }
 
-      msg.textContent = "Login successful!";
+      msg.textContent = "Inicio de sesión exitoso!";
       msg.className = "feedback success";
 
       setTimeout(() => (location.hash = "#/dashboard"), 800);
     } catch (err) {
-      msg.textContent = `Login failed: ${err.message}`;
+      msg.textContent = `Inicio de sesion fallido: ${err.message}`;
       msg.className = "feedback error";
       btn.disabled = false;
     } finally {
@@ -224,7 +225,7 @@ function initRegister() {
 
   if (!form) return;
 
- const inputs = form.querySelectorAll("input");
+  const inputs = form.querySelectorAll("input");
   inputs.forEach(input => {
     input.addEventListener("input", () => {
       msg.textContent = "";
@@ -240,22 +241,20 @@ function initRegister() {
   const confirmInput = document.getElementById("confirm");
 
   const validateForm = () => {
-    const nameOk = nameInput.value.trim().length >= 2;
-    const lastNameOk = lastNameInput.value.trim().length >= 2;
-    const ageOk = ageInput.value.trim() !== "" && !isNaN(ageInput.value) && parseInt(ageInput.value) >= 13;
-    const emailOk = emailInput.value.includes("@") && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
-    const passOk = passwordInput.value.trim().length >= 8;
-    const confirmOk = passwordInput.value === confirmInput.value && confirmInput.value.length > 0;
+    // Check if any field is empty
+    const nameNotEmpty = nameInput.value.trim().length > 0;
+    const lastNameNotEmpty = lastNameInput.value.trim().length > 0;
+    const ageNotEmpty = ageInput.value.trim().length > 0;
+    const emailNotEmpty = emailInput.value.trim().length > 0;
+    const passwordNotEmpty = passwordInput.value.trim().length > 0;
+    const confirmNotEmpty = confirmInput.value.trim().length > 0;
 
-    const passwordComplexOk = /[A-Z]/.test(passwordInput.value) && 
-                              /[0-9]/.test(passwordInput.value) && 
-                              /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(passwordInput.value);
-
-    const valid = nameOk && lastNameOk && ageOk && emailOk && passOk && passwordComplexOk && confirmOk;
+    const allFieldsFilled = nameNotEmpty && lastNameNotEmpty && ageNotEmpty && 
+                           emailNotEmpty && passwordNotEmpty && confirmNotEmpty;
     
-    btn.disabled = !valid;
+    btn.disabled = !allFieldsFilled;
 
-    return valid;
+    return allFieldsFilled;
   };
 
   [nameInput, lastNameInput, ageInput, emailInput, passwordInput, confirmInput].forEach(input => {
@@ -270,6 +269,12 @@ function initRegister() {
     msg.textContent = "";
     msg.className = "feedback";
 
+    if (!validateForm()) {
+      msg.textContent = "Completa todos los campos para registrarte";
+      msg.className = "feedback error";
+      return;
+    }
+
     try {
       showSpinner();
       const userData = {
@@ -281,47 +286,43 @@ function initRegister() {
       };
 
       const confirmPassword = confirmInput.value.trim();
+      
       if (userData.password !== confirmPassword) {
-        msg.textContent = "Las contraseñas no coinciden";
-        msg.classList.add("error");
+        msg.textContent = "Las contraseñas ingresadas no coinciden";
+        msg.className = "feedback error";
         return;
       }
 
       const validation = validateRegisterForm(userData);
       if (!validation.isValid) {
         msg.textContent = validation.error;
-        msg.classList.add("error");
+        msg.className = "feedback error";
         return;
       }
 
-      btn.disabled = true;
-      msg.textContent = "Creating account...";
+      btn.disabled = true; // Disable during submission
+      msg.textContent = "Creando una cuenta...";
       msg.className = "feedback loading";
 
       await registerUser(userData);
-      msg.textContent = "Registration successful!";
-      msg.classList.add("success");
+      msg.textContent = "Registro exitoso!";
+      msg.className = "feedback success";
 
       form.reset();
-      setTimeout(() => (location.hash = "#/login"), 1500);
+      setTimeout(() => (location.hash = "#/login"), 800);
 
     } catch (err) {
-      console.error("Registration error:", err);
-         console.error("Error en registro:", err);
+      console.error("Error registrandote:", err);
 
-  let errorMessage = "Registration failed";
+      let errorMessage = err;
 
-  // Si el backend devolvió el error de correo duplicado
-  if (err.message && err.message.includes("E11000 duplicate key")) {
-    errorMessage = "Este correo ya está registrado";
-  }
-
-  msg.textContent = errorMessage;
-  msg.classList.add("error");
-            validateForm();
-    } finally{
+      msg.textContent = errorMessage;
+      msg.className = "feedback error";
+      
+      validateForm();
+    } finally {
       hideSpinner();
-}
+    }
   });
 
   validateForm();
@@ -344,16 +345,16 @@ emailInput.addEventListener("input", () => {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    msg.textContent = "Requesting recovery...";
+    msg.textContent = "Solicitando recuperacion de contraseña...";
 
     try {
       showSpinner();
       await recoverPassword({
         email: document.getElementById("email").value.trim(),
       });
-      msg.textContent = "Recovery email sent!";
+      msg.textContent = "Correo de recuperacion enviado exitosamente!";
     } catch (err) {
-      msg.textContent = `Recovery failed: ${err.message}`;
+      msg.textContent = `No se ha podido enviar el correo de recuperacion: ${err.message}`;
     } finally {
       hideSpinner();
     }
@@ -547,7 +548,6 @@ function validateRegisterForm(userData) {
     text = "La contraseña debe de contener al menos 8 caracteres e incluir una mayuscula, un caracter especial y un numero";
     return { isValid: false, error: text };
   }
-  // Añadir error al no ingresar correo valido
   else {
     return { isValid: true, error: null };
   }
