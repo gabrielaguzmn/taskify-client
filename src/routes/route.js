@@ -89,6 +89,13 @@ function initLogin() {
 
   if (!form) return;
 
+  [emailInput, passInput].forEach(input => {
+    input.addEventListener("input", () => {
+      msg.textContent = "";
+      msg.className = "feedback"; // resetea estilos
+    });
+  });
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     msg.textContent = "Processing login...";
@@ -127,6 +134,14 @@ function initRegister() {
 
   if (!form) return;
 
+ const inputs = form.querySelectorAll("input");
+  inputs.forEach(input => {
+    input.addEventListener("input", () => {
+      msg.textContent = "";
+      msg.className = "feedback"; // reset estilos
+    });
+  });
+  
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     msg.textContent = "";
@@ -159,10 +174,18 @@ function initRegister() {
       }
     }
     catch (err) {
-      msg.textContent = `Registration failed: ${err.message}`;
-      msg.classList.add("error");
+         console.error("Error en registro:", err);
 
-    }
+  let errorMessage = "Registration failed";
+
+  // Si el backend devolvió el error de correo duplicado
+  if (err.message && err.message.includes("E11000 duplicate key")) {
+    errorMessage = "Este correo ya está registrado";
+  }
+
+  msg.textContent = errorMessage;
+  msg.classList.add("error");
+}
   });
 
 }
@@ -176,6 +199,11 @@ function initRecover() {
   const msg = document.getElementById("recoverMsg");
 
   if (!form) return;
+
+emailInput.addEventListener("input", () => {
+    msg.textContent = "";
+    msg.className = "feedback"; // resetea estilos
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -222,6 +250,14 @@ function initDashboard() {
   }
 
   if (!form) return;
+
+ const inputs = form.querySelectorAll("input, select");
+  inputs.forEach(input => {
+    input.addEventListener("input", () => {
+      msg.textContent = "";
+      msg.className = "feedback";
+    });
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
