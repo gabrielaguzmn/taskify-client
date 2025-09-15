@@ -10,6 +10,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
  *
  * Automatically stringifies the request body (if provided),
  * sets default headers (`Content-Type: application/json`),
+ * includes credentials for cookie support,
  * and parses JSON responses.
  *
  * @async
@@ -28,6 +29,7 @@ async function request(path, { method = 'GET', headers = {}, body } = {}) {
       'Content-Type': 'application/json',
       ...headers,
     },
+    credentials: 'include', // ADDED: This enables HttpOnly cookies
     body: body ? JSON.stringify(body) : undefined,
   });
 

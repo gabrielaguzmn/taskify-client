@@ -145,7 +145,7 @@ function initRegister() {
           console.log("The register was sucessful !!!!!");
           msg.textContent = "Registration successful!";
           msg.classList.add("success");
-          setTimeout(() => (location.hash = "#/login"), 400);
+          setTimeout(() => (location.hash = "#/login"), 1000);
         }
         else {
           console.log("La contraseña no coincide");
