@@ -99,7 +99,7 @@ export async function recoverPassword({ email }) {
     const response = await http.post("/api/users/recover", { email });
 
     showToast("Check your email to continue", "success");
-
+    console.log(response)
     return response;
   } catch (err) {
     if (err.status >= 500) {
