@@ -71,20 +71,6 @@ setTimeout(() => {
  * @throws {Error} If the API responds with an error.
  */
 export async function loginUser({ email, password }) {
-<<<<<<< HEAD
-  try {
-    const response = await http.post("/api/users/login", { email, password });
-    return response;
-  } catch (err) {
-    if (err.status >= 500) {
-      showToast("Intenta de nuevo más tarde", "error");
-    } else {
-      showToast(err.message || "Error al iniciar sesión", "error");
-    }
-
-    throw err; 
-  }
-=======
   const res = await http.post("/api/users/login", { email, password });
 
   if (res.user) {
@@ -95,7 +81,6 @@ export async function loginUser({ email, password }) {
     }
   }
   return res;
->>>>>>> origin
 }
 
 /**
