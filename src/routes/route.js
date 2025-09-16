@@ -1,13 +1,16 @@
 import { registerUser, loginUser, recoverPassword, resetPassword } from "../services/userService.js";
 import { getTasks, createTask } from "../services/taskService.js";
 
+
 import logo from "../assets/img/logoPI.jpg";
 
 import '../styles/login.css';
 import '../styles/dashboard.css';
+import '../styles/home.css'
+import '../styles/changePassword.css'
+import '../styles/recover.css'
+import '../styles/register.css'
 
-
-import logoPI from '../assets/img/logoPI.jpg';
 
 
 const app = document.getElementById("app");
@@ -329,11 +332,7 @@ function initLogin() {
         email: emailInput.value.trim(),
         password: passInput.value.trim(),
       });
-      console.log("The login has succeeded!!!", response);
-      if (response.user) {
-        localStorage.setItem("currentUser", JSON.stringify(response.user));
-        localStorage.setItem("isLoggedIn", "true");
-      }
+      // console.log("The login has succeeded!!!", response);
 
       msg.textContent = "Inicio de sesión exitoso!";
       msg.className = "feedback success";
@@ -665,13 +664,15 @@ function initDashboard() {
 export function getCurrentUser() {
   try {
     console.log("Getting current user from localStorage..."); // Debug log
-    const userStr = localStorage.getItem('currentUser');
+    const userStr = localStorage.getItem("currentUser");
     console.log("Raw user string:", userStr); // Debug log
 
     if (!userStr) {
       console.log("No user string found in localStorage");
       return null;
     }
+
+    
 
     const user = JSON.parse(userStr);
     console.log("Parsed user object:", user); // Debug log
@@ -693,6 +694,8 @@ export function getCurrentUser() {
     return null;
   }
 }
+
+
 
 /**
  * Check if user is logged in
