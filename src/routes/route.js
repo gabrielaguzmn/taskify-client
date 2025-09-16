@@ -511,7 +511,7 @@ function initDashboard() {
   const open = document.getElementById("openModal");
   const close = document.getElementById("closeModal");
   const modal = document.getElementById("taskModal");
-  const msg = document.getElementById("taskMsg"); // ✅ Add this line
+  const msg = document.getElementById("taskMsg"); 
 
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
