@@ -31,7 +31,37 @@ export const taskService = {
 
 //Función simple para obtener todas las tareas
 export async function getTasks() {
-  return http.get("/tasks");
+  return http.get("/userTask/");
+}
+export async function editTask({ idTask, title, description, date, status, userId}) {
+  // Get current user ID automatically
+  // const currentUser = getCurrentUser();
+  // if (!currentUser) {
+  //   throw new Error('User not logged in');
+  // }
+  try {
+    const response = await http.put(`/api/tasks/editTask/${idTask}`, { 
+      title, 
+      description, 
+      date, 
+      status, 
+      userId 
+    });
+
+    showToast("Task edit successfully", "success");
+
+    return response;
+  } catch (err) {
+    if (err.status >= 500) {
+      // Error de servidor (genérico)
+      showToast("No pudimos editar la tarea, inténtalo más tarde", "error");
+    } else {
+      // Errores específicos (400, 401, etc.)
+      showToast(err.message || "Error creating task", "error");
+    }
+
+    throw err; // lo relanzamos por si se quiere manejar en otro lado
+  }
 }
 
 export async function createTask({ title, description, date, status, userId}) {
@@ -65,10 +95,6 @@ export async function createTask({ title, description, date, status, userId}) {
   }
 }
 
-export async function getTasksByUser() {
-  const currentUser = getCurrentUser();
-  if (!currentUser) {
-    throw new Error("User not logged in");
-  }
+export async function getTasksByUser(id) {
 
-  return http.get(`/tasks/user/${currentUser.id}`);}
+  return http.get(`/api/tasks/userTask/${id}`);}

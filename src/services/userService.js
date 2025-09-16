@@ -62,6 +62,18 @@ export async function resetPassword(token, newPassword) {
   }
 }
 
+export async function getMyInformation(token){
+
+  // const token = localStorage.getItem('authToken');
+
+
+  return http.get("api/users/me", {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
 /**
  * Login a user into the system.
  *
@@ -85,7 +97,8 @@ export async function loginUser({ email, password }) {
         localStorage.setItem("authToken", res.token);
         // console.log("User saved to localStorage:", user); // ✅ Debug log
 
-
+        document.cookie = `authToken=${res.token}; path=/; max-age=7200`; // 2 hours
+        
         showToast("Successfully logged in", "success", 5000);
         return res
       }
@@ -121,6 +134,29 @@ function decodeJWT(token) {
   } catch (error) {
     console.error("Error decoding JWT:", error);
     return null;
+  }
+}
+
+export async function updateUser(userId, userData) {
+  try {
+    const updatePayload = {
+      name: userData.name,           
+      lastName: userData.lastName,   
+      email: userData.email,         
+      age: userData.age             
+    };
+
+    // console.log("Sending update payload:", updatePayload); // Debug log
+
+    const response = await http.put("/api/users/me", updatePayload);
+    
+    showToast("User updated successfully", "success");
+    return response;
+
+  } catch (error) {
+    console.error("Issues updating user:", error);
+    
+    throw error;
   }
 }
 

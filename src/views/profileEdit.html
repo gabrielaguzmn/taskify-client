@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editar Perfil</title>
+  <link rel="stylesheet" href="/src/styles/profile.css" />
+</head>
+<body>
+  <div class="frame">
+    <section class="profile-edit-container">
+      <h2>Editar perfil</h2>
+
+      <form id="editProfileForm" class="form">
+        <div class="field-box">
+          <label for="editName">Nombre</label>
+          <input type="text" id="editName" placeholder="Nombre" required />
+        </div>
+
+        <div class="field-box">
+          <label for="editLastName">Apellido</label>
+          <input type="text" id="editLastName" placeholder="Apellido" required />
+        </div>
+
+        <div class="field-box">
+          <label for="editAge">Edad</label>
+          <input type="number" id="editAge" placeholder="Edad" min="0" />
+        </div>
+
+        <div class="field-box">
+          <label for="editEmail">Email</label>
+          <input type="email" id="editEmail" placeholder="Email" disabled />
+        </div>
+
+        <p id="editMsg" class="feedback" aria-live="polite"></p>
+
+        <div class="actions">
+          <button type="submit" class="btn">Guardar</button>
+          <button type="button" id="cancelEditBtn" class="btn-secondary">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</body>
+</html>

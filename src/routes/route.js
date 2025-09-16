@@ -1,5 +1,5 @@
-import { registerUser, loginUser, recoverPassword, resetPassword } from "../services/userService.js";
-import { getTasks, createTask } from "../services/taskService.js";
+import { registerUser, loginUser, recoverPassword, resetPassword, getMyInformation, updateUser } from "../services/userService.js";
+import { getTasksByUser, createTask, editTask } from "../services/taskService.js";
 
 
 import logo from "../assets/img/logoPI.jpg";
@@ -38,7 +38,17 @@ async function loadView(name) {
 
   app.innerHTML = html;
 
+   if (name === "home") {
+    const imgEl = document.getElementById("registerLogo");
+    if (imgEl) imgEl.src = logo;
+  }
+
   if (name === "login") {
+    const imgEl = document.getElementById("registerLogo");
+    if (imgEl) imgEl.src = logo;
+  }
+
+   if (name === "about") {
     const imgEl = document.getElementById("registerLogo");
     if (imgEl) imgEl.src = logo;
   }
@@ -55,6 +65,9 @@ async function loadView(name) {
   if (name === "changePassword") initChangePassword();
   if (name === "recover") initRecover();
   if (name === "dashboard") initDashboard();
+  if (name === "profile") initProfile();
+  if (name === "profileEdit") initProfileEdit();
+  if (name === "about") initAbout();
 }
 
 /**
@@ -81,7 +94,7 @@ function handleRoute() {
   // Default to 'home' if no path
   const routePath = path || "home";
   
-  const known = ["home", "login", "register", "recover", "dashboard", "changePassword"];
+  const known = ["home", "login", "register", "recover", "dashboard", "changePassword", "about", "profile", "profileEdit"];
   const route = known.includes(routePath) ? routePath : "home";
 
   // Store query parameters globally so views can access them
@@ -352,6 +365,12 @@ function initLogin() {
 }
 
 
+// inint about us
+function initAbout() {
+  console.log("About page loaded");
+}
+
+
 
 /**
  * Initialize the "register" view.
@@ -510,8 +529,8 @@ function initDashboard() {
   const open = document.getElementById("openModal");
   const close = document.getElementById("closeModal");
   const modal = document.getElementById("taskModal");
-  const msg = document.getElementById("taskMsg"); // ✅ Add this line
-
+  const msg = document.getElementById("taskMsg"); 
+  let taskId = null;
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
@@ -528,7 +547,9 @@ function initDashboard() {
     if (show) document.getElementById("title").focus();
   };
 
-  open.addEventListener("click", () => toggle(true));
+  open.addEventListener("click", () => {taskId = null;
+                                        toggle(true);
+  } );
   close.addEventListener("click", () => toggle(false));
   modal.addEventListener("click", (e) => {
     if (e.target === modal) toggle(false);
@@ -563,6 +584,27 @@ function initDashboard() {
       </div>
     `;
 
+    const editButton = taskCard.querySelector(".edit");
+    if (editButton) {
+      
+      editButton.addEventListener("click", () => {
+      taskId = task._id; 
+      document.getElementById("title").value = task.title || "";
+      document.getElementById("description").value = task.description || "";
+      if (task.date) {
+        const date = new Date(task.date);
+        document.getElementById("day").value = String(date.getDate()).padStart(2, "0");
+        document.getElementById("month").value = String(date.getMonth() + 1).padStart(2, "0");
+        document.getElementById("year").value = date.getFullYear();
+        document.getElementById("hour").value = String(date.getHours()).padStart(2, "0");
+        document.getElementById("minute").value = String(date.getMinutes()).padStart(2, "0");
+      }
+      document.getElementById("status").value = task.status || "to do";
+
+      toggle(true);
+    });
+  }
+
     if (task.status === "to do") {
       document.getElementById("todoList").appendChild(taskCard);
     } else if (task.status === "doing") {
@@ -575,7 +617,8 @@ function initDashboard() {
   // --- Cargar tareas al iniciar ---
   (async () => {
     try {
-      const tasks = await getTasks();
+      const tasks = await getTasksByUser(getCurrentUser().id);
+      console.log("Id user::", getCurrentUser().id);
       tasks.forEach(renderTask);
     } catch (err) {
       console.error("Error loading tasks:", err);
@@ -637,10 +680,33 @@ function initDashboard() {
         userId: currentUser.id
       };
 
-      console.log("Task data to be sent:", TaskData);
-      const savedTask = await createTask(TaskData);
-      renderTask(savedTask);
+      const TaskDataEdit = {
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        date: combinedDate,
+        dateString,
+        timeString,
+        status: document.getElementById("status").value,
+        userId: currentUser.id,
+        idTask: taskId
+      };
 
+      let savedTask;
+          if (taskId) {
+            // --- Update existing task ---
+            savedTask = await editTask(TaskDataEdit);
+            taskId = null; // Reset after editing
+        // Opcional: eliminar tarjeta vieja y renderizar nueva
+          document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
+          } else {
+        // --- Create new task ---
+            console.log("Creating new task with data:", taskId);
+            savedTask = await createTask(TaskData);
+        }
+      
+      renderTask(savedTask);
+      
+      
       console.log("Task created successfully:", savedTask);
 
       // ✅ Clean form reset and modal close
@@ -656,6 +722,104 @@ function initDashboard() {
   });
 }
 
+function initProfile() {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    alert("Debes iniciar sesión");
+    location.hash = "#/login";
+    return;
+  }
+  (async() => {
+    try {
+const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('authToken='))?.split('=')[1];      
+  const userInfo = await getMyInformation(token)
+      document.getElementById("profileName").textContent = userInfo.name || "";
+  document.getElementById("profileLastName").textContent = userInfo.lastName || "";
+  document.getElementById("profileEmail").textContent = userInfo.email || "";
+  document.getElementById("profileAge").textContent = userInfo.age || "";
+
+    }
+    catch(error) {
+      console.log("An error has happened retrieving your user information", error)
+
+    }
+  })()
+
+  const editBtn = document.getElementById("editProfileBtn");
+  if (editBtn) {
+    editBtn.addEventListener("click", () => {
+      location.hash = "#/profileEdit";
+    });
+  }
+}
+
+/* ---- NUEVO: Vista de edición de perfil ---- */
+function initProfileEdit() {
+  const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('authToken='))?.split('=')[1];      
+
+  // const token = localStorage.getItem("authToken")
+  const currentUser = getCurrentUser();
+  console.log(currentUser)
+  console.log(token)
+  const form = document.getElementById("editProfileForm");
+  const msg = document.getElementById("editMsg");
+
+  if (!currentUser) {
+    alert("Debes iniciar sesión");
+
+    location.hash = "#/login";
+    return;
+  }
+
+    (async() => {
+    try {
+const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('authToken='))?.split('=')[1];      
+  const userInfo = await getMyInformation(token)
+    // Prellenar campos
+  const editNameInput = document.getElementById("editName");
+  const editLastNameInput = document.getElementById("editLastName");
+  const editEmailInput = document.getElementById("editEmail");
+  const editAgeInput = document.getElementById("editAge");
+  editNameInput.value = userInfo.name || "";
+  editLastNameInput.value = userInfo.lastName || "";
+  editEmailInput.value = userInfo.email || "";
+  editAgeInput.value = userInfo.age || "";
+  
+    }
+    catch(error) {
+      console.log("An error has happened retrieving your user information", error)
+
+    }
+  })()
+    
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.textContent = "Actualizando...";
+    msg.className = "feedback";
+
+    try {
+const updatedData = {
+        name: document.getElementById("editName").value.trim(),        
+        lastName: document.getElementById("editLastName").value.trim(), 
+        email: document.getElementById("editEmail").value.trim(),          
+        age: document.getElementById("editAge").value.trim()            
+      };
+
+      const result = await updateUser(currentUser.id || currentUser._id, updatedData);
+      localStorage.setItem("currentUser", JSON.stringify(result));
+
+      msg.textContent = "Perfil actualizado!";
+      msg.classList.add("success");
+
+      setTimeout(() => (location.hash = "#/profile"), 800);
+    } catch (err) {
+      console.error("Error actualizando perfil:", err);
+      msg.textContent = `Error: ${err.message}`;
+      msg.classList.add("error");
+    }
+  });
+}
 
 /**
  * Get the currently logged-in user
@@ -675,7 +839,7 @@ export function getCurrentUser() {
     
 
     const user = JSON.parse(userStr);
-    console.log("Parsed user object:", user); // Debug log
+    // console.log("Parsed user object:", user); // Debug log
 
     // Validate user object structure
     if (!user || typeof user !== 'object') {
