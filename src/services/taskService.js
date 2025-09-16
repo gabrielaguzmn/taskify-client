@@ -31,7 +31,7 @@ export const taskService = {
 
 //Función simple para obtener todas las tareas
 export async function getTasks() {
-  return http.get("/tasks");
+  return http.get("/userTask/");
 }
 export async function editTask({ idTask, title, description, date, status, userId}) {
   // Get current user ID automatically
@@ -95,10 +95,6 @@ export async function createTask({ title, description, date, status, userId}) {
   }
 }
 
-export async function getTasksByUser() {
-  const currentUser = getCurrentUser();
-  if (!currentUser) {
-    throw new Error("User not logged in");
-  }
+export async function getTasksByUser(id) {
 
-  return http.get(`/tasks/user/${currentUser.id}`);}
+  return http.get(`/api/tasks/userTask/${id}`);}

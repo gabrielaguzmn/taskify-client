@@ -1,5 +1,5 @@
 import { registerUser, loginUser, recoverPassword, resetPassword } from "../services/userService.js";
-import { getTasks, createTask, editTask } from "../services/taskService.js";
+import { getTasksByUser, createTask, editTask } from "../services/taskService.js";
 
 
 import logo from "../assets/img/logoPI.jpg";
@@ -598,7 +598,8 @@ function initDashboard() {
   // --- Cargar tareas al iniciar ---
   (async () => {
     try {
-      const tasks = await getTasks();
+      const tasks = await getTasksByUser(getCurrentUser().id);
+      console.log("Id user::", getCurrentUser().id);
       tasks.forEach(renderTask);
     } catch (err) {
       console.error("Error loading tasks:", err);
@@ -685,7 +686,8 @@ function initDashboard() {
         }
       
       renderTask(savedTask);
-
+      
+      
       console.log("Task created successfully:", savedTask);
 
       // ✅ Clean form reset and modal close
