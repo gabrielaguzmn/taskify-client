@@ -52,6 +52,8 @@ async function loadView(name) {
   if (name === "changePassword") initChangePassword();
   if (name === "recover") initRecover();
   if (name === "dashboard") initDashboard();
+  if (name === "profile") initProfile();
+  if (name === "profileEdit") initProfileEdit();
 }
 
 /**
@@ -78,7 +80,7 @@ function handleRoute() {
   // Default to 'home' if no path
   const routePath = path || "home";
   
-  const known = ["home", "login", "register", "recover", "dashboard", "changePassword"];
+  const known = ["home", "login", "register", "recover", "dashboard", "changePassword","profile", "profileEdit"];
   const route = known.includes(routePath) ? routePath : "home";
 
   // Store query parameters globally so views can access them
@@ -657,6 +659,72 @@ function initDashboard() {
   });
 }
 
+function initProfile() {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    alert("Debes iniciar sesión");
+    location.hash = "#/login";
+    return;
+  }
+
+  document.getElementById("profileName").textContent = currentUser.name || "";
+  document.getElementById("profileLastName").textContent = currentUser.lastName || "";
+  document.getElementById("profileEmail").textContent = currentUser.email || "";
+  document.getElementById("profileAge").textContent = currentUser.age || "";
+
+  const editBtn = document.getElementById("editProfileBtn");
+  if (editBtn) {
+    editBtn.addEventListener("click", () => {
+      location.hash = "#/profileEdit";
+    });
+  }
+}
+
+/* ---- NUEVO: Vista de edición de perfil ---- */
+function initProfileEdit() {
+  const currentUser = getCurrentUser();
+  const form = document.getElementById("profileEditForm");
+  const msg = document.getElementById("profileEditMsg");
+
+  if (!currentUser || !form) {
+    alert("Debes iniciar sesión");
+    location.hash = "#/login";
+    return;
+  }
+
+  // Prellenar campos
+  form.name.value = currentUser.name || "";
+  form.lastName.value = currentUser.lastName || "";
+  form.email.value = currentUser.email || "";
+  form.age.value = currentUser.age || "";
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.textContent = "Actualizando...";
+    msg.className = "feedback";
+
+    try {
+      const updatedData = {
+        name: form.name.value.trim(),
+        lastName: form.lastName.value.trim(),
+        email: form.email.value.trim(),
+        age: form.age.value.trim(),
+      };
+
+      const result = await updateUser(currentUser.id, updatedData);
+      localStorage.setItem("currentUser", JSON.stringify(result));
+
+      msg.textContent = "Perfil actualizado!";
+      msg.classList.add("success");
+
+      setTimeout(() => (location.hash = "#/profile"), 800);
+    } catch (err) {
+      console.error("Error actualizando perfil:", err);
+      msg.textContent = `Error: ${err.message}`;
+      msg.classList.add("error");
+    }
+  });
+}
 
 /**
  * Get the currently logged-in user
