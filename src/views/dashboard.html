@@ -6,15 +6,30 @@
   <title>Dashboard</title>
   <link rel="stylesheet" href="/src/styles/dashboard.css" />
 </head>
-<body>
+<body>  
+  <header class="topbar">
+    <button id="logoutBtn" class="btn-secondary">Logout</button>
+  </header>
   <header class="topbar">
     <h1 class="app-title">Taskify</h1>
     <button id="openModal" class="btn-primary">+ Add Task</button>
   </header>
 
-  <main class="content">
-    
-    <p class="empty-hint">No tasks yet. Click <strong>Add Task</strong> to create one.</p>
+  <main class="board">
+    <section class="column" id="todo-col">
+      <h2>TO DO</h2>
+      <div class="task-list" id="todoList"></div>
+    </section>
+
+    <section class="column" id="doing-col">
+      <h2>DOING</h2>
+      <div class="task-list" id="doingList"></div>
+    </section>
+
+    <section class="column" id="done-col">
+      <h2>DONE</h2>
+      <div class="task-list" id="doneList"></div>
+    </section>
   </main>
 
   
