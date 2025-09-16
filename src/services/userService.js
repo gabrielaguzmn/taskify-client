@@ -21,27 +21,38 @@ export async function registerUser({ name, lastName, age, email, password }) {
   try {
     const response = await http.post("/api/users/register", { name, lastName, age, email, password });
 
-    showToast("Successfully created account", "success");
+    showToast("Successfully created account", "success", 5000);
 
     setTimeout(() => {
-       location.hash = "#/login";
+      location.hash = "#/login";
     }, 400);
 
     return response;
   } catch (err) {
-    showToast("Error creating account", "error");
+        showToast("Error creating account", "error");
+
+    const status = err.response?.status;
+    const backendMessage = err.response?.data?.message;
+    console.log(status)
+    if (status >= 500) {
+      showToast("Intenta de nuevo más tarde", "error", 5000);
+    } else {
+      showToast(backendMessage || err.message || "Error creating account", "error");
+    }
+
     throw err;
   }
 }
 
 export async function resetPassword(token, newPassword) {
   try {
-    const response = await http.put("/api/users/changePassword", {token, newPassword})
+    const response = await http.put("/api/users/changePassword", { token, newPassword })
 
     showToast("Successfully changed password", "success")
 
-setTimeout(() => {
-       location.hash = "#/login";
+
+    setTimeout(() => {
+      location.hash = "#/login";
     }, 5000);
 
     return response;
@@ -63,33 +74,86 @@ setTimeout(() => {
  * @throws {Error} If the API responds with an error.
  */
 export async function loginUser({ email, password }) {
-  const res = await http.post("/api/users/login", { email, password });
-
-  if (res.user) {
-    localStorage.setItem("currentUser", JSON.stringify(res.user));
-    localStorage.setItem("isLoggedIn", "true");
+  try {
+    const res = await http.post("/api/users/login", { email, password });
     if (res.token) {
-      localStorage.setItem("authToken", res.token);
+      const user = decodeJWT(res.token);
+
+      if (user) {
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("authToken", res.token);
+        // console.log("User saved to localStorage:", user); // ✅ Debug log
+
+
+        showToast("Successfully logged in", "success", 5000);
+        return res
+      }
+      else {
+        throw new Error("Invalid token format")
+      }
+    } else {
+      throw new Error("No token received from server");
     }
+  } catch (err) {
+    console.error("Login error:", err);
+
+    if (err.status >= 500) {
+      showToast("Intenta de nuevo más tarde", "error");
+    } else {
+      showToast(err.message || "Error al iniciar sesión", "error");
+    }
+    throw err;
   }
-  return res;
+}
+
+function decodeJWT(token) {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload));
+
+    // Return user object from token payload
+    return {
+      id: decoded.id || decoded.userId || decoded._id,
+      email: decoded.email,
+      // Add other fields your token contains
+    };
+  } catch (error) {
+    console.error("Error decoding JWT:", error);
+    return null;
+  }
 }
 
 /**
- * Password recovery
+ * Send a password recovery request.
+ *
+ * @async
+ * @function recoverPassword
+ * @param {Object} params - Recovery data.
+ * @param {string} params.email - The email of the user to recover.
+ * @returns {Promise<Object>} Response from the API.
+ * @throws {Error} If the API responds with an error.
  */
 export async function recoverPassword({ email }) {
   try {
     const response = await http.post("/api/users/recover", { email });
 
     showToast("Check your email to continue", "success");
-
+    console.log(response)
     return response;
   } catch (err) {
-    showToast("Error requesting recovery", "error");
-    throw err;
+    if (err.status >= 500) {
+      // Error genérico de servidor
+      showToast("Intenta de nuevo más tarde", "error");
+    } else {
+      // Error específico desde el backend
+      showToast(err.message || "Error requesting recovery", "error");
+    }
+
+    throw err; // relanzamos por si se maneja más arriba
   }
 }
+
 
 /**
  * Logout a user from the system (client side only).
