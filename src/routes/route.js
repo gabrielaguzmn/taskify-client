@@ -38,7 +38,17 @@ async function loadView(name) {
 
   app.innerHTML = html;
 
+   if (name === "home") {
+    const imgEl = document.getElementById("registerLogo");
+    if (imgEl) imgEl.src = logo;
+  }
+
   if (name === "login") {
+    const imgEl = document.getElementById("registerLogo");
+    if (imgEl) imgEl.src = logo;
+  }
+
+   if (name === "about") {
     const imgEl = document.getElementById("registerLogo");
     if (imgEl) imgEl.src = logo;
   }
@@ -57,6 +67,7 @@ async function loadView(name) {
   if (name === "dashboard") initDashboard();
   if (name === "profile") initProfile();
   if (name === "profileEdit") initProfileEdit();
+  if (name === "about") initAbout();
 }
 
 /**
@@ -83,7 +94,7 @@ function handleRoute() {
   // Default to 'home' if no path
   const routePath = path || "home";
   
-  const known = ["home", "login", "register", "recover", "dashboard", "changePassword","profile", "profileEdit"];
+  const known = ["home", "login", "register", "recover", "dashboard", "changePassword", "about", "profile", "profileEdit"];
   const route = known.includes(routePath) ? routePath : "home";
 
   // Store query parameters globally so views can access them
@@ -351,6 +362,12 @@ function initLogin() {
 
   // inicializar validación al cargar
   validateForm();
+}
+
+
+// inint about us
+function initAbout() {
+  console.log("About page loaded");
 }
 
 
