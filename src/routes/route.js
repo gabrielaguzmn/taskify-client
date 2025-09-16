@@ -1,4 +1,4 @@
-import { registerUser, loginUser, recoverPassword, resetPassword } from "../services/userService.js";
+import { registerUser, loginUser, recoverPassword, resetPassword, getMyInformation, updateUser } from "../services/userService.js";
 import { getTasksByUser, createTask, editTask } from "../services/taskService.js";
 
 
@@ -712,11 +712,21 @@ function initProfile() {
     location.hash = "#/login";
     return;
   }
+  (async() => {
+    try {
+const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('authToken='))?.split('=')[1];      
+  const userInfo = await getMyInformation(token)
+      document.getElementById("profileName").textContent = userInfo.name || "";
+  document.getElementById("profileLastName").textContent = userInfo.lastName || "";
+  document.getElementById("profileEmail").textContent = userInfo.email || "";
+  document.getElementById("profileAge").textContent = userInfo.age || "";
 
-  document.getElementById("profileName").textContent = currentUser.name || "";
-  document.getElementById("profileLastName").textContent = currentUser.lastName || "";
-  document.getElementById("profileEmail").textContent = currentUser.email || "";
-  document.getElementById("profileAge").textContent = currentUser.age || "";
+    }
+    catch(error) {
+      console.log("An error has happened retrieving your user information", error)
+
+    }
+  })()
 
   const editBtn = document.getElementById("editProfileBtn");
   if (editBtn) {
@@ -728,21 +738,43 @@ function initProfile() {
 
 /* ---- NUEVO: Vista de edición de perfil ---- */
 function initProfileEdit() {
-  const currentUser = getCurrentUser();
-  const form = document.getElementById("profileEditForm");
-  const msg = document.getElementById("profileEditMsg");
+  const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('authToken='))?.split('=')[1];      
 
-  if (!currentUser || !form) {
+  // const token = localStorage.getItem("authToken")
+  const currentUser = getCurrentUser();
+  console.log(currentUser)
+  console.log(token)
+  const form = document.getElementById("editProfileForm");
+  const msg = document.getElementById("editMsg");
+
+  if (!currentUser) {
     alert("Debes iniciar sesión");
+
     location.hash = "#/login";
     return;
   }
 
-  // Prellenar campos
-  form.name.value = currentUser.name || "";
-  form.lastName.value = currentUser.lastName || "";
-  form.email.value = currentUser.email || "";
-  form.age.value = currentUser.age || "";
+    (async() => {
+    try {
+const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('authToken='))?.split('=')[1];      
+  const userInfo = await getMyInformation(token)
+    // Prellenar campos
+  const editNameInput = document.getElementById("editName");
+  const editLastNameInput = document.getElementById("editLastName");
+  const editEmailInput = document.getElementById("editEmail");
+  const editAgeInput = document.getElementById("editAge");
+  editNameInput.value = userInfo.name || "";
+  editLastNameInput.value = userInfo.lastName || "";
+  editEmailInput.value = userInfo.email || "";
+  editAgeInput.value = userInfo.age || "";
+  
+    }
+    catch(error) {
+      console.log("An error has happened retrieving your user information", error)
+
+    }
+  })()
+    
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -750,14 +782,14 @@ function initProfileEdit() {
     msg.className = "feedback";
 
     try {
-      const updatedData = {
-        name: form.name.value.trim(),
-        lastName: form.lastName.value.trim(),
-        email: form.email.value.trim(),
-        age: form.age.value.trim(),
+const updatedData = {
+        name: document.getElementById("editName").value.trim(),        
+        lastName: document.getElementById("editLastName").value.trim(), 
+        email: document.getElementById("editEmail").value.trim(),          
+        age: document.getElementById("editAge").value.trim()            
       };
 
-      const result = await updateUser(currentUser.id, updatedData);
+      const result = await updateUser(currentUser.id || currentUser._id, updatedData);
       localStorage.setItem("currentUser", JSON.stringify(result));
 
       msg.textContent = "Perfil actualizado!";
@@ -790,7 +822,7 @@ export function getCurrentUser() {
     
 
     const user = JSON.parse(userStr);
-    console.log("Parsed user object:", user); // Debug log
+    // console.log("Parsed user object:", user); // Debug log
 
     // Validate user object structure
     if (!user || typeof user !== 'object') {

@@ -24,13 +24,17 @@ const BASE_URL = import.meta.env.VITE_API_URL;
  * @throws {Error} If the response is not OK (status >= 400), throws with message.
  */
 async function request(path, { method = 'GET', headers = {}, body } = {}) {
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const url = path.startsWith('/') 
+    ? `${BASE_URL}${path}` 
+    : `${BASE_URL}/${path}`;
+  
+  const res = await fetch(url, {
     method,
     headers: {
       'Content-Type': 'application/json',
       ...headers,
     },
-    credentials: 'include', // ADDED: This enables HttpOnly cookies
+    credentials: 'include', // This enables HttpOnly cookies
     body: body ? JSON.stringify(body) : undefined,
   });
 
@@ -38,14 +42,13 @@ async function request(path, { method = 'GET', headers = {}, body } = {}) {
   const payload = isJSON ? await res.json().catch(() => null) : null;
 
   if (!res.ok) {
-  const msg = payload?.message || payload?.error || `HTTP ${res.status}`;
-  throw {
-    status: res.status,
-    message: msg,
-    payload,
-  };
-}
-
+    const msg = payload?.message || payload?.error || `HTTP ${res.status}`;
+    throw {
+      status: res.status,
+      message: msg,
+      payload,
+    };
+  }
 
   return payload;
 }
