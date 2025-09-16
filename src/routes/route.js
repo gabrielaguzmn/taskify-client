@@ -1,5 +1,5 @@
 import { registerUser, loginUser, recoverPassword, resetPassword } from "../services/userService.js";
-import { getTasks, createTask } from "../services/taskService.js";
+import { getTasks, createTask, editTask } from "../services/taskService.js";
 
 
 import logo from "../assets/img/logoPI.jpg";
@@ -511,7 +511,7 @@ function initDashboard() {
   const close = document.getElementById("closeModal");
   const modal = document.getElementById("taskModal");
   const msg = document.getElementById("taskMsg"); 
-
+  let taskId = null;
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
@@ -528,7 +528,9 @@ function initDashboard() {
     if (show) document.getElementById("title").focus();
   };
 
-  open.addEventListener("click", () => toggle(true));
+  open.addEventListener("click", () => {taskId = null;
+                                        toggle(true);
+  } );
   close.addEventListener("click", () => toggle(false));
   modal.addEventListener("click", (e) => {
     if (e.target === modal) toggle(false);
@@ -562,6 +564,27 @@ function initDashboard() {
         <button class="delete">🗑️</button>
       </div>
     `;
+
+    const editButton = taskCard.querySelector(".edit");
+    if (editButton) {
+      
+      editButton.addEventListener("click", () => {
+      taskId = task._id; 
+      document.getElementById("title").value = task.title || "";
+      document.getElementById("description").value = task.description || "";
+      if (task.date) {
+        const date = new Date(task.date);
+        document.getElementById("day").value = String(date.getDate()).padStart(2, "0");
+        document.getElementById("month").value = String(date.getMonth() + 1).padStart(2, "0");
+        document.getElementById("year").value = date.getFullYear();
+        document.getElementById("hour").value = String(date.getHours()).padStart(2, "0");
+        document.getElementById("minute").value = String(date.getMinutes()).padStart(2, "0");
+      }
+      document.getElementById("status").value = task.status || "to do";
+
+      toggle(true);
+    });
+  }
 
     if (task.status === "to do") {
       document.getElementById("todoList").appendChild(taskCard);
@@ -637,8 +660,30 @@ function initDashboard() {
         userId: currentUser.id
       };
 
-      console.log("Task data to be sent:", TaskData);
-      const savedTask = await createTask(TaskData);
+      const TaskDataEdit = {
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        date: combinedDate,
+        dateString,
+        timeString,
+        status: document.getElementById("status").value,
+        userId: currentUser.id,
+        idTask: taskId
+      };
+
+      let savedTask;
+          if (taskId) {
+            // --- Update existing task ---
+            savedTask = await editTask(TaskDataEdit);
+            taskId = null; // Reset after editing
+        // Opcional: eliminar tarjeta vieja y renderizar nueva
+          document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
+          } else {
+        // --- Create new task ---
+            console.log("Creating new task with data:", taskId);
+            savedTask = await createTask(TaskData);
+        }
+      
       renderTask(savedTask);
 
       console.log("Task created successfully:", savedTask);
