@@ -632,7 +632,6 @@ function initDashboard() {
       showSpinner();
       
       const currentUser = getCurrentUser();
-      console.log("Current user from localStorage:", currentUser);
 
       if (!currentUser) {
         console.error("No user found in localStorage");
@@ -731,8 +730,7 @@ function initProfile() {
   }
   (async() => {
     try {
-const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('authToken='))?.split('=')[1];      
-  const userInfo = await getMyInformation(token)
+  const userInfo = await getMyInformation()
       document.getElementById("profileName").textContent = userInfo.name || "";
   document.getElementById("profileLastName").textContent = userInfo.lastName || "";
   document.getElementById("profileEmail").textContent = userInfo.email || "";
@@ -755,12 +753,7 @@ const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith
 
 /* ---- NUEVO: Vista de edición de perfil ---- */
 function initProfileEdit() {
-  const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('authToken='))?.split('=')[1];      
-
-  // const token = localStorage.getItem("authToken")
   const currentUser = getCurrentUser();
-  console.log(currentUser)
-  console.log(token)
   const form = document.getElementById("editProfileForm");
   const msg = document.getElementById("editMsg");
 
@@ -773,9 +766,7 @@ function initProfileEdit() {
 
     (async() => {
     try {
-const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('authToken='))?.split('=')[1];      
-  const userInfo = await getMyInformation(token)
-    // Prellenar campos
+  const userInfo = await getMyInformation()
   const editNameInput = document.getElementById("editName");
   const editLastNameInput = document.getElementById("editLastName");
   const editEmailInput = document.getElementById("editEmail");

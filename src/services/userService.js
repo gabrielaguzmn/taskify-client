@@ -67,11 +67,7 @@ export async function getMyInformation(token){
   // const token = localStorage.getItem('authToken');
 
 
-  return http.get("api/users/me", {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
+  return http.get("api/users/me");
 }
 
 /**
@@ -85,6 +81,7 @@ export async function getMyInformation(token){
  * @returns {Promise<Object>} The auth token and user info returned by the API.
  * @throws {Error} If the API responds with an error.
  */
+
 export async function loginUser({ email, password }) {
   try {
     const res = await http.post("/api/users/login", { email, password });
@@ -94,15 +91,10 @@ export async function loginUser({ email, password }) {
       if (user) {
         localStorage.setItem("currentUser", JSON.stringify(user));
         localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("authToken", res.token);
-        // console.log("User saved to localStorage:", user); // ✅ Debug log
 
-        document.cookie = `authToken=${res.token}; path=/; max-age=7200`; // 2 hours
-        
         showToast("Successfully logged in", "success", 5000);
-        return res
-      }
-      else {
+        return res;
+      } else {
         throw new Error("Invalid token format")
       }
     } else {
@@ -137,6 +129,7 @@ function decodeJWT(token) {
   }
 }
 
+// Missing the authentication validation
 export async function updateUser(userId, userData) {
   try {
     const updatePayload = {
