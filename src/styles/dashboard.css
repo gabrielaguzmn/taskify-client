@@ -23,36 +23,29 @@ body {
 }
 
 /* 🔹 Topbars */
-.topbar {
+.topbar-main {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px;
-  border-bottom: 1px solid #ececec;
-}
-
-/* Barra de perfil + logout */
-.topbar-logout {
-  display: flex;
-  justify-content: space-between; /* 🔹 separa izquierda y derecha */
-  align-items: center;
   background: var(--white);
-  border-bottom: 1px solid #ececec;
+  border-bottom: 2px solid #ddd;
+  position: sticky; /* fijo arriba */
+  top: 0;
+  z-index: 1000;
 }
 
-/* Barra principal con título y botón de tareas */
-.topbar-main {
+.left-buttons,
+.right-buttons {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: #fafafa;
-  border-bottom: 2px solid #ddd;
+  gap: 12px;
 }
 
 .app-title {
-  font-size: 18px;
-  margin: 0;
+  font-size: 20px;
   font-weight: 700;
+  margin: 0;
 }
 
 .btn-primary,
