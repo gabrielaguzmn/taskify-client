@@ -31,13 +31,20 @@ body {
   border-bottom: 1px solid #ececec;
 }
 
-.topbar:first-of-type {
-  justify-content: flex-end;
+/* Barra de perfil + logout */
+.topbar-logout {
+  display: flex;
+  justify-content: space-between; /* 🔹 separa izquierda y derecha */
+  align-items: center;
   background: var(--white);
+  border-bottom: 1px solid #ececec;
 }
 
-.topbar:last-of-type {
+/* Barra principal con título y botón de tareas */
+.topbar-main {
+  display: flex;
   justify-content: space-between;
+  align-items: center;
   background: #fafafa;
   border-bottom: 2px solid #ddd;
 }

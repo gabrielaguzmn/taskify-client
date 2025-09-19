@@ -7,33 +7,47 @@
   --radius: 20px;
 }
 
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-body {
+* { 
+  box-sizing: border-box; 
+}
+
+html, body { 
+  height: 100%; 
   margin: 0;
+}
+
+body {
   background: var(--bg);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
   color: var(--text);
 }
 
+/* 🔹 Contenedor general */
 .frame {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
+  background: var(--bg);
 }
 
+/* 🔹 Caja de perfil y edición */
 .profile-container,
 .profile-edit-container {
   background: var(--white);
   border-radius: var(--radius);
   padding: 32px;
-  max-width: 480px;
   width: 100%;
+  max-width: 600px;
+  min-height: 80vh; /* 🔹 ocupa la mayor parte de la pantalla */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   box-shadow: 0 12px 32px rgba(0,0,0,.12);
 }
 
+/* 🔹 Títulos */
 .profile-container h2,
 .profile-edit-container h2 {
   margin-top: 0;
@@ -43,6 +57,7 @@ body {
   text-align: center;
 }
 
+/* 🔹 Texto del perfil */
 .profile-container p {
   margin: 12px 0;
   font-size: 16px;
@@ -53,6 +68,7 @@ body {
   font-weight: 600;
 }
 
+/* 🔹 Formularios */
 .form {
   display: grid;
   gap: 16px;
@@ -84,6 +100,7 @@ body {
   cursor: not-allowed;
 }
 
+/* 🔹 Mensajes */
 .feedback {
   font-size: 14px;
   text-align: center;
@@ -93,11 +110,13 @@ body {
 .feedback.error { color: #d9534f; }
 .feedback.success { color: #28a745; }
 
+/* 🔹 Acciones (botones) */
 .actions {
   display: flex;
   gap: 12px;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
 .btn {
@@ -109,6 +128,11 @@ body {
   color: #fff;
   font-weight: 600;
   font-size: 15px;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: #333;
 }
 
 .btn-secondary {
@@ -120,4 +144,20 @@ body {
   color: #111;
   font-weight: 600;
   font-size: 15px;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+}
+
+/* 🔹 Responsive en móviles */
+@media (max-width: 768px) {
+  .profile-container,
+  .profile-edit-container {
+    padding: 20px;
+    border-radius: 0;  /* 🔹 ocupa toda la pantalla */
+    min-height: 100vh;
+    box-shadow: none;
+  }
 }

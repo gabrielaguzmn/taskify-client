@@ -722,6 +722,13 @@ function initDashboard() {
   });
 }
 
+const profileBtn = document.getElementById("profileBtn");
+if (profileBtn) {
+  profileBtn.addEventListener("click", () => {
+    location.hash = "#/profile"; // 🔹 redirige a la vista perfil
+  });
+}
+
 function initProfile() {
   const currentUser = getCurrentUser();
   if (!currentUser) {
