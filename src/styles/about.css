@@ -22,11 +22,11 @@ body {
 }
 
 .about-logo {
-  width: 150px;        /* 👈 ancho máximo */
+  width: 150px;
   height: auto;
-  max-height: 150px;   /* 👈 altura máxima */
+  max-height: 150px;
   margin-bottom: 20px;
-  object-fit: contain; /* 👈 mantiene la proporción */
+  object-fit: contain;
 }
 
 .about-card h2 {
