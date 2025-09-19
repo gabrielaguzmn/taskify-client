@@ -531,12 +531,20 @@ function initDashboard() {
   const modal = document.getElementById("taskModal");
   const msg = document.getElementById("taskMsg"); 
   let taskId = null;
+
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
       logout();
     });
   }
+
+  const profileBtn = document.getElementById("profileBtn");
+if (profileBtn) {
+  profileBtn.addEventListener("click", () => {
+    location.hash = "#/profile"; // 🔹 redirige a la vista perfil
+  });
+}
 
   if (!form || !modal || !open || !close) return;
 
@@ -722,12 +730,7 @@ function initDashboard() {
   });
 }
 
-const profileBtn = document.getElementById("profileBtn");
-if (profileBtn) {
-  profileBtn.addEventListener("click", () => {
-    location.hash = "#/profile"; // 🔹 redirige a la vista perfil
-  });
-}
+
 
 function initProfile() {
   const currentUser = getCurrentUser();
