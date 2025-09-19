@@ -626,35 +626,21 @@ if (profileBtn) {
   };
 
   // --- Cargar tareas al iniciar ---
- async function loadTasks() {
-  try {
-    const currentUser = getCurrentUser();
-    if (!currentUser) {
-      alert("Debes iniciar sesión");
-      location.hash = "#/login";
-      return;
+  (async () => {
+    try {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        alert("Debes iniciar sesión");
+        location.hash = "#/login";
+        return;
+      }
+      const userId = currentUser.id || currentUser._id;
+      const tasks = await getTasksByUser(userId);
+      tasks.forEach(renderTask);
+    } catch (err) {
+      console.error("Error cargando tareas:", err);
     }
-
-    // 🔹 soportar id y _id
-    const userId = currentUser.id || currentUser._id;
-    if (!userId) {
-      console.error("No se encontró id en el usuario:", currentUser);
-      return;
-    }
-
-    // limpiar columnas antes de recargar
-    document.getElementById("todoList").innerHTML = "";
-    document.getElementById("doingList").innerHTML = "";
-    document.getElementById("doneList").innerHTML = "";
-
-    const tasks = await getTasksByUser(userId);
-    tasks.forEach(renderTask);
-  } catch (err) {
-    console.error("Error cargando tareas:", err);
-  }
-}
-
-    loadTasks();
+  })();
 
 
   form.addEventListener("submit", async (e) => {
