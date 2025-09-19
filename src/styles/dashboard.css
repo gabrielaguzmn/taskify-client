@@ -30,11 +30,12 @@ body {
   padding: 14px 18px;
   background: var(--white);
   border-bottom: 2px solid #ddd;
-  position: sticky; /* fijo arriba */
+  position: fixed;  
   top: 0;
+  left: 0;
+  width: 100%;       
   z-index: 1000;
 }
-
 .left-buttons,
 .right-buttons {
   display: flex;
