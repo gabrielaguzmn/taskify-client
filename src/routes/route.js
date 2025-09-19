@@ -68,6 +68,9 @@ async function loadView(name) {
   if (name === "profile") initProfile();
   if (name === "profileEdit") initProfileEdit();
   if (name === "about") initAbout();
+
+  document.body.className = ""; // elimina todas las clases previas
+  document.body.classList.add(`${name}-page`); // añade la clase específica de la vista 
 }
 
 /**
