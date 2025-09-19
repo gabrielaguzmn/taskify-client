@@ -626,26 +626,29 @@ if (profileBtn) {
   };
 
   // --- Cargar tareas al iniciar ---
-async function loadTasks() {
-  try {
-    const currentUser = getCurrentUser();
-    if (!currentUser) {
-      alert("Debes iniciar sesión");
-      location.hash = "#/login";
-      return;
+  async function loadTasks() {
+    try {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        alert("Debes iniciar sesión");
+        location.hash = "#/login";
+        return;
+      }
+
+      // limpiar antes de recargar
+      document.getElementById("todoList").innerHTML = "";
+      document.getElementById("doingList").innerHTML = "";
+      document.getElementById("doneList").innerHTML = "";
+
+      const tasks = await getTasksByUser(currentUser.id);
+      tasks.forEach(renderTask);
+    } catch (err) {
+      console.error("Error loading tasks:", err);
     }
-
-    // limpiar columnas antes de volver a renderizar
-    document.getElementById("todoList").innerHTML = "";
-    document.getElementById("doingList").innerHTML = "";
-    document.getElementById("doneList").innerHTML = "";
-
-    const tasks = await getTasksByUser(currentUser.id);
-    tasks.forEach(renderTask);
-  } catch (err) {
-    console.error("Error loading tasks:", err);
   }
-}
+
+    loadTasks();
+
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
