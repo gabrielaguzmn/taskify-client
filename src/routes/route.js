@@ -626,26 +626,33 @@ if (profileBtn) {
   };
 
   // --- Cargar tareas al iniciar ---
-  async function loadTasks() {
-    try {
-      const currentUser = getCurrentUser();
-      if (!currentUser) {
-        alert("Debes iniciar sesión");
-        location.hash = "#/login";
-        return;
-      }
-
-      // limpiar antes de recargar
-      document.getElementById("todoList").innerHTML = "";
-      document.getElementById("doingList").innerHTML = "";
-      document.getElementById("doneList").innerHTML = "";
-
-      const tasks = await getTasksByUser(currentUser.id);
-      tasks.forEach(renderTask);
-    } catch (err) {
-      console.error("Error loading tasks:", err);
+ async function loadTasks() {
+  try {
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      alert("Debes iniciar sesión");
+      location.hash = "#/login";
+      return;
     }
+
+    // 🔹 soportar id y _id
+    const userId = currentUser.id || currentUser._id;
+    if (!userId) {
+      console.error("No se encontró id en el usuario:", currentUser);
+      return;
+    }
+
+    // limpiar columnas antes de recargar
+    document.getElementById("todoList").innerHTML = "";
+    document.getElementById("doingList").innerHTML = "";
+    document.getElementById("doneList").innerHTML = "";
+
+    const tasks = await getTasksByUser(userId);
+    tasks.forEach(renderTask);
+  } catch (err) {
+    console.error("Error cargando tareas:", err);
   }
+}
 
     loadTasks();
 
@@ -666,12 +673,14 @@ if (profileBtn) {
         return;
       }
 
-      if (!currentUser.id) {
-        console.error("User object missing _id:", currentUser);
-        alert("Invalid user session. Please log in again");
-        location.hash = "#/login";
-        return;
-      }
+      const userId = currentUser.id || currentUser._id;
+if (!userId) {
+  console.error("User object missing id/_id:", currentUser);
+  alert("Invalid user session. Please log in again");
+  location.hash = "#/login";
+  return;
+}
+
 
       const day = document.getElementById("day").value.padStart(2, "0");
       const month = document.getElementById("month").value.padStart(2, "0");
@@ -702,7 +711,7 @@ if (profileBtn) {
         dateString,
         timeString,
         status: document.getElementById("status").value,
-        userId: currentUser.id
+       userId
       };
 
       const TaskDataEdit = {
@@ -712,7 +721,7 @@ if (profileBtn) {
         dateString,
         timeString,
         status: document.getElementById("status").value,
-        userId: currentUser.id,
+       userId,
         idTask: taskId
       };
 
@@ -834,7 +843,12 @@ const updatedData = {
       };
 
       const result = await updateUser(currentUser.id || currentUser._id, updatedData);
-      localStorage.setItem("currentUser", JSON.stringify(result));
+     
+      const normalizedUser = {
+  ...result,
+  id: result.id || result._id
+};
+localStorage.setItem("currentUser", JSON.stringify(normalizedUser));
 
       msg.textContent = "Perfil actualizado!";
       msg.classList.add("success");
