@@ -1,5 +1,5 @@
 import { registerUser, loginUser, recoverPassword, resetPassword, getMyInformation, updateUser } from "../services/userService.js";
-import { getTasksByUser, createTask, editTask } from "../services/taskService.js";
+import { getTasksByUser, createTask, editTask, deleteTasks } from "../services/taskService.js";
 
 
 import logo from "../assets/img/logoPI.jpg";
@@ -529,6 +529,9 @@ function initDashboard() {
   const open = document.getElementById("openModal");
   const close = document.getElementById("closeModal");
   const modal = document.getElementById("taskModal");
+  const deleteModal = document.getElementById("confirmModal");
+  const deleteModalNo = document.getElementById("deleteModalNo");
+  const deleteModalSi = document.getElementById("deleteModalSi");
   const msg = document.getElementById("taskMsg"); 
   let taskId = null;
   const logoutBtn = document.getElementById("logoutBtn");
@@ -546,6 +549,13 @@ function initDashboard() {
     modal.setAttribute("aria-hidden", show ? "false" : "true");
     if (show) document.getElementById("title").focus();
   };
+  
+  const toggleDelete = (show) => {
+        deleteModal.classList.toggle("open", show);
+        deleteModal.setAttribute("aria-hidden", show ? "false" : "true");
+        if (show) document.getElementById("title").focus();
+        };
+
 
   open.addEventListener("click", () => {taskId = null;
                                         toggle(true);
@@ -585,6 +595,11 @@ function initDashboard() {
     `;
 
     const editButton = taskCard.querySelector(".edit");
+    const deleteButton = taskCard.querySelector(".delete");
+    
+
+
+  
     if (editButton) {
       
       editButton.addEventListener("click", () => {
@@ -605,6 +620,30 @@ function initDashboard() {
     });
   }
 
+
+  const closeDelete = document.getElementById("closeModalDelete");
+  
+  
+
+      if (deleteButton) {
+          console.log("click Delete");
+          deleteButton.addEventListener("click", () => {
+          taskId = task._id; 
+          console.log("Taskid: ", taskId)
+          toggleDelete(true); // abre modal de eliminar
+        } );
+     }
+
+  closeDelete.addEventListener("click", () => toggleDelete(false));
+  deleteModalNo.addEventListener("click", () => toggleDelete(false));
+  
+
+
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") toggleDelete(false);
+  });
+
     if (task.status === "to do") {
       document.getElementById("todoList").appendChild(taskCard);
     } else if (task.status === "doing") {
@@ -624,6 +663,14 @@ function initDashboard() {
       console.error("Error loading tasks:", err);
     }
   })();
+
+  deleteModalSi.addEventListener("click", () => {
+    console.log("Taskid: ", taskId);
+    deleteTasks(taskId);
+    toggleDelete(false);
+    renderTask(savedTask);
+  });
+
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -694,15 +741,21 @@ function initDashboard() {
           if (taskId) {
             // --- Update existing task ---
             savedTask = await editTask(TaskDataEdit);
+            document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
             taskId = null; // Reset after editing
         // Opcional: eliminar tarjeta vieja y renderizar nueva
-          document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
+          
           } else {
         // --- Create new task ---
             console.log("Creating new task with data:", taskId);
             savedTask = await createTask(TaskData);
         }
       
+      
+      // --- Toggle modalDelete---
+      
+    
+
       renderTask(savedTask);
       
       
