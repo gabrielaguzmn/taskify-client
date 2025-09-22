@@ -185,3 +185,13 @@ export async function logoutUser() {
     throw err;
   }
 }
+
+export async function isAuthenticated() {
+  try {
+    // This endpoint should be protected by your middleware
+    const user = await http.get('/api/users/me');
+    return !!user
+  } catch (err) {
+    return false;
+  }
+}

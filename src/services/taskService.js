@@ -47,7 +47,6 @@ export async function editTask({ idTask, title, description, date, status, userI
       status, 
       userId 
     });
-    console.log("🔍 editTask response:", response);
     showToast("Task edit successfully", "success");
 
     return response.task;
@@ -78,7 +77,6 @@ export async function createTask({ title, description, date, status, userId}) {
       status, 
       userId 
     });
-    console.log("🔍 createTask response:", response);
     showToast("Task created successfully", "success");
 
     return response;

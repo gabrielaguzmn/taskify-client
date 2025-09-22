@@ -1,6 +1,7 @@
 import { registerUser, loginUser, recoverPassword, resetPassword, getMyInformation, updateUser } from "../services/userService.js";
 import { getTasksByUser, createTask, editTask, deleteTasks } from "../services/taskService.js";
 import { showToast } from "../services/toastService.js";
+import { isAuthenticated } from "../services/userService.js";
 
 import logo from "../assets/img/logoPI.jpg";
 
@@ -73,93 +74,7 @@ async function loadView(name) {
   document.body.classList.add(`${name}-page`); // añade la clase específica de la vista 
 }
 
-function isLogged() {
-  try {
-    const authCookie = document.cookie
-      .split(';')
-      .find(cookie => cookie.trim().startsWith('authToken='));
-    
-    if (!authCookie) {
-      showToast("Please log in to access this feature", "error");
-      setTimeout(() => {
-        location.hash = "#/login";
-      }, 1000);
-      return null;
-    }
-    const token = authCookie.split('=')[1];
-    
-    if (!token) {
-      showToast("Invalid session. Please log in again", "error");
-      setTimeout(() => {
-        location.hash = "#/login";
-      }, 1000);
-      return null;
-    }
 
-    const userInfo = decodeJWT(token);
-    
-    if (!userInfo || !userInfo.id) {
-      showToast("Session expired. Please log in again", "error");
-      setTimeout(() => {
-        location.hash = "#/login";
-      }, 1000);
-      return null;
-    }
-
-    return userInfo.id;
-
-  } catch (error) {
-    showToast("Authentication error. Please log in again", "error");   
-    setTimeout(() => {
-      location.hash = "#/login";
-    }, 1000);
-    return null;
-  }
-}
-
-function isLogged() {
-  try {
-    const authCookie = document.cookie
-      .split(';')
-      .find(cookie => cookie.trim().startsWith('authToken='));
-    
-    if (!authCookie) {
-      showToast("Please log in to access this feature", "error");
-      setTimeout(() => {
-        location.hash = "#/login";
-      }, 1000);
-      return null;
-    }
-    const token = authCookie.split('=')[1];
-    
-    if (!token) {
-      showToast("Invalid session. Please log in again", "error");
-      setTimeout(() => {
-        location.hash = "#/login";
-      }, 1000);
-      return null;
-    }
-
-    const userInfo = decodeJWT(token);
-    
-    if (!userInfo || !userInfo.id) {
-      showToast("Session expired. Please log in again", "error");
-      setTimeout(() => {
-        location.hash = "#/login";
-      }, 1000);
-      return null;
-    }
-
-    return userInfo.id;
-
-  } catch (error) {
-    showToast("Authentication error. Please log in again", "error");   
-    setTimeout(() => {
-      location.hash = "#/login";
-    }, 1000);
-    return null;
-  }
-}
 
 /**
  * Initialize the hash-based router.
@@ -174,46 +89,59 @@ export function initRouter() {
  * Handle the current route based on the location hash.
  * Fallback to 'login' if the route is unknown.
  */
-
 function handleRoute() {
-  // Get the full hash including query parameters
   const fullHash = location.hash.startsWith("#/") ? location.hash.slice(2) : "";
-  
-  // Split path from query parameters
-  const [path, queryString] = fullHash.split('?');
-  
-  // Default to 'home' if no path
-  const routePath = path || "home";
+    const [path, queryString] = fullHash.split('?');
+    const routePath = path || "home";
   
   const known = ["home", "login", "register", "recover", "dashboard", "changePassword", "about", "profile", "profileEdit"];
   const route = known.includes(routePath) ? routePath : "home";
+  
+  const protectedRoutes = ["dashboard", "profile", "profileEdit"];
 
-  const protectedRoutes = ["dashboard", "profile", "profileEdit"]
+  if (route === "login" || route === "register") {
+    isAuthenticated().then((loggedIn) => {
+      if (loggedIn) {
+        location.hash = "#/dashboard";
+        return;
+      }
+      continueToLoadView();
+    }).catch(() => {
+      continueToLoadView();
+    });
+    return;
+  }
+
   if (protectedRoutes.includes(route)) {
-    const userId = isLogged();
-    if (!userId) {
-      return; // isLogged handles the redirect and toast
-    }
+    showSpinner();
+    isAuthenticated().then((loggedIn) => {
+      hideSpinner();
+      if (!loggedIn) {
+        showToast("Please log in to access this feature", "error");
+        setTimeout(() => {
+          location.hash = "#/login";
+        }, 1000);
+        return;
+      }
+      continueToLoadView();
+    }).catch((error) => {
+      hideSpinner();
+      showToast("Authentication error. Please log in again.", "error");
+      setTimeout(() => {
+        location.hash = "#/login";
+      }, 1000);
+    });
+    return;
   }
+  continueToLoadView();
 
-  if (route === "login") {
-    const authCookie = document.cookie
-      .split(';')
-      .find(cookie => cookie.trim().startsWith('authToken='));
-    
-    if (authCookie) {
-      location.hash = "#/dashboard";
-      return;
-    }
+  function continueToLoadView() {
+    window.currentQueryParams = queryString ? new URLSearchParams(queryString) : new URLSearchParams();
+    loadView(route).catch((err) => {
+      console.error("Error loading view:", err);
+      app.innerHTML = `<p style="color:#ff4d4d">Error loading the view: ${route}</p>`;
+    });
   }
-
-  // Store query parameters globally so views can access them
-  window.currentQueryParams = queryString ? new URLSearchParams(queryString) : new URLSearchParams();
-
-  loadView(route).catch((err) => {
-    console.error(err);
-    app.innerHTML = `<p style="color:#ff4d4d">Error loading the view.</p>`;
-  });
 }
 
 function showSpinner() {
@@ -613,10 +541,6 @@ email.addEventListener("input", () => {
  */
 function initDashboard() {
 
-  const userId = isLogged()
-  if(!userId ){
-    return
-  }
   const form = document.getElementById("taskForm");
   const list = document.getElementById("taskList");
   const open = document.getElementById("openModal");
@@ -727,7 +651,7 @@ if (profileBtn) {
   
 
       if (deleteButton) {
-          console.log("click Delete");
+          // console.log("click Delete");
           deleteButton.addEventListener("click", () => {
           taskId = task._id; 
           console.log("Taskid: ", taskId)
@@ -742,6 +666,7 @@ if (profileBtn) {
 
 
   document.addEventListener("keydown", (e) => {
+    
     if (e.key === "Escape") toggleDelete(false);
   });
 
@@ -756,6 +681,8 @@ if (profileBtn) {
 
   (async () => {
     try {
+          const userInfo = await getMyInformation();
+      const userId = userInfo._id;
       const tasks = await getTasksByUser(userId);
       tasks.forEach(renderTask);
     } catch (err) {
@@ -777,11 +704,8 @@ if (profileBtn) {
     try {
       showSpinner();
 
-      const currentUserId = isLogged();
-      if (!currentUserId) {
-        hideSpinner();
-        return; }
-
+          const userInfo = await getMyInformation();
+      const currentUserId = userInfo._id;
 
       const day = document.getElementById("day").value.padStart(2, "0");
       const month = document.getElementById("month").value.padStart(2, "0");
@@ -846,11 +770,6 @@ if (profileBtn) {
     
 
       renderTask(savedTask);
-      
-      
-      console.log("Task created successfully:", savedTask);
-
-      // ✅ Clean form reset and modal close
       form.reset();
       toggle(false);
 
@@ -865,10 +784,6 @@ if (profileBtn) {
 
 
 function initProfile() {
-  const userId = isLogged();
-  if (!userId) {
-    return; // isLogged handles the redirect and toast
-  }
 
   (async() => {
     try {
@@ -895,15 +810,15 @@ function initProfile() {
 
 /* ---- NUEVO: Vista de edición de perfil ---- */
 function initProfileEdit() {
-  const userId = isLogged();
-  if (!userId) {
-    return; // isLogged handles the redirect and toast
-  }  const form = document.getElementById("editProfileForm");
+ 
+  const form = document.getElementById("editProfileForm");
   const msg = document.getElementById("editMsg");
 
     (async() => {
     try {
+
   const userInfo = await getMyInformation()
+
   const editNameInput = document.getElementById("editName");
   const editLastNameInput = document.getElementById("editLastName");
   const editEmailInput = document.getElementById("editEmail");
@@ -923,27 +838,29 @@ function initProfileEdit() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const currentUserId = isLogged();
-    if (!currentUserId) {
-      return; // isLogged handles the redirect
-    }
+
 
     msg.textContent = "Actualizando...";
     msg.className = "feedback";
 
     try {
+
+        const userInfo = await getMyInformation()
+
+              const currentUserId = userInfo._id;      
+
       const updatedData = {
-        newName: document.getElementById("editName").value.trim(),        
-        newLastName: document.getElementById("editLastName").value.trim(), 
+        name: document.getElementById("editName").value.trim(),        
+        lastName: document.getElementById("editLastName").value.trim(), 
         email: document.getElementById("editEmail").value.trim(),          
-        newAge: document.getElementById("editAge").value.trim()            
+        age: document.getElementById("editAge").value.trim()            
       };
 
       const result = await updateUser(currentUserId, updatedData);
       
-      if (result.user) {
-        localStorage.setItem("currentUser", JSON.stringify(result.user));
-      }
+      // if (result.user) {
+      //   localStorage.setItem("currentUser", JSON.stringify(result.user));
+      // }
 
       msg.textContent = "Perfil actualizado!";
       msg.className = "feedback success";
@@ -974,24 +891,6 @@ function decodeJWT(token) {
     return null;
   }
 }
-
-/**
- * Check if user is logged in
- * @returns {boolean} True if user is logged in
- */
-// export function isLoggedIn() {
-//   return localStorage.getItem('isLoggedIn') === 'true';
-// }
-
-// /**
-//  * Logout user
-//  */
-// export function logout() { 
-//   localStorage.removeItem('currentUser'); 
-//   localStorage.removeItem('isLoggedIn'); 
-//   location.hash = '#/login'; 
-// }
-
 
 function validateRegisterForm(userData) {
   let text = "";
