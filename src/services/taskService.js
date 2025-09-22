@@ -47,10 +47,10 @@ export async function editTask({ idTask, title, description, date, status, userI
       status, 
       userId 
     });
-
+    console.log("🔍 editTask response:", response);
     showToast("Task edit successfully", "success");
 
-    return response;
+    return response.task;
   } catch (err) {
     if (err.status >= 500) {
       // Error de servidor (genérico)
@@ -78,7 +78,7 @@ export async function createTask({ title, description, date, status, userId}) {
       status, 
       userId 
     });
-
+    console.log("🔍 createTask response:", response);
     showToast("Task created successfully", "success");
 
     return response;
@@ -98,3 +98,7 @@ export async function createTask({ title, description, date, status, userId}) {
 export async function getTasksByUser(id) {
 
   return http.get(`/api/tasks/userTask/${id}`);}
+
+export async function deleteTasks(id) {
+
+  return http.del(`/api/tasks/${id}`);}
