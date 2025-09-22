@@ -68,6 +68,53 @@ async function loadView(name) {
   if (name === "profile") initProfile();
   if (name === "profileEdit") initProfileEdit();
   if (name === "about") initAbout();
+
+  document.body.className = ""; // elimina todas las clases previas
+  document.body.classList.add(`${name}-page`); // añade la clase específica de la vista 
+}
+
+function isLogged() {
+  try {
+    const authCookie = document.cookie
+      .split(';')
+      .find(cookie => cookie.trim().startsWith('authToken='));
+    
+    if (!authCookie) {
+      showToast("Please log in to access this feature", "error");
+      setTimeout(() => {
+        location.hash = "#/login";
+      }, 1000);
+      return null;
+    }
+    const token = authCookie.split('=')[1];
+    
+    if (!token) {
+      showToast("Invalid session. Please log in again", "error");
+      setTimeout(() => {
+        location.hash = "#/login";
+      }, 1000);
+      return null;
+    }
+
+    const userInfo = decodeJWT(token);
+    
+    if (!userInfo || !userInfo.id) {
+      showToast("Session expired. Please log in again", "error");
+      setTimeout(() => {
+        location.hash = "#/login";
+      }, 1000);
+      return null;
+    }
+
+    return userInfo.id;
+
+  } catch (error) {
+    showToast("Authentication error. Please log in again", "error");   
+    setTimeout(() => {
+      location.hash = "#/login";
+    }, 1000);
+    return null;
+  }
 }
 
 function isLogged() {
@@ -577,12 +624,20 @@ function initDashboard() {
   const modal = document.getElementById("taskModal");
   const msg = document.getElementById("taskMsg"); 
   let taskId = null;
+
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
       logout();
     });
   }
+
+  const profileBtn = document.getElementById("profileBtn");
+if (profileBtn) {
+  profileBtn.addEventListener("click", () => {
+    location.hash = "#/profile"; // 🔹 redirige a la vista perfil
+  });
+}
 
   if (!form || !modal || !open || !close) return;
 
@@ -665,9 +720,10 @@ function initDashboard() {
       const tasks = await getTasksByUser(userId);
       tasks.forEach(renderTask);
     } catch (err) {
-      console.error("Error loading tasks:", err);
+      console.error("Error cargando tareas:", err);
     }
   })();
+
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -753,6 +809,8 @@ function initDashboard() {
     }
   });
 }
+
+
 
 function initProfile() {
   const userId = isLogged();

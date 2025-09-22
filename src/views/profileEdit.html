@@ -6,7 +6,7 @@
   <title>Editar Perfil</title>
   <link rel="stylesheet" href="/src/styles/profile.css" />
 </head>
-<body>
+<body class="profile-edit-page">
   <div class="frame">
     <section class="profile-edit-container">
       <h2>Editar perfil</h2>
@@ -24,19 +24,19 @@
 
         <div class="field-box">
           <label for="editAge">Edad</label>
-          <input type="number" id="editAge" placeholder="Edad" min="0" />
+          <input type="number" id="editAge" placeholder="Edad" min="18" />
         </div>
 
         <div class="field-box">
           <label for="editEmail">Email</label>
-          <input type="email" id="editEmail" placeholder="Email" disabled />
+          <input type="email" id="editEmail" placeholder="Email" required />
         </div>
 
         <p id="editMsg" class="feedback" aria-live="polite"></p>
 
         <div class="actions">
           <button type="submit" class="btn">Guardar</button>
-          <button type="button" id="cancelEditBtn" class="btn-secondary">Cancelar</button>
+         <a href="#/profile" class="btn-secondary">Cancelar</a>
         </div>
       </form>
     </section>

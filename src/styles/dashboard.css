@@ -23,29 +23,30 @@ body {
 }
 
 /* 🔹 Topbars */
-.topbar {
+.topbar-main {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px;
-  border-bottom: 1px solid #ececec;
-}
-
-.topbar:first-of-type {
-  justify-content: flex-end;
   background: var(--white);
-}
-
-.topbar:last-of-type {
-  justify-content: space-between;
-  background: #fafafa;
   border-bottom: 2px solid #ddd;
+  position: fixed;  
+  top: 0;
+  left: 0;
+  width: 100%;       
+  z-index: 1000;
+}
+.left-buttons,
+.right-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .app-title {
-  font-size: 18px;
-  margin: 0;
+  font-size: 20px;
   font-weight: 700;
+  margin: 0;
 }
 
 .btn-primary,

@@ -7,17 +7,18 @@
   <link rel="stylesheet" href="/src/styles/dashboard.css" />
 </head>
 <body>  
-  <!-- Topbar con Logout -->
-  <header class="topbar topbar-logout">
-    <button id="logoutBtn" class="btn-secondary">Logout</button>
-  </header>
-
-  <!-- Topbar con título y botón de nueva tarea -->
   <header class="topbar topbar-main">
-    <h1 class="app-title">Taskify</h1>
-    <button id="openModal" class="btn-primary">+ Add Task</button>
-  </header>
+    <div class="left-buttons">
+      <button id="profileBtn" class="btn-secondary">Perfil</button>
+    </div>
 
+    <h1 class="app-title">Taskify</h1>
+
+    <div class="right-buttons">
+      <button id="openModal" class="btn-primary">+ Add Task</button>
+      <button id="logoutBtn" class="btn-secondary">Logout</button>
+    </div>
+  </header>
   <!-- Tablero principal -->
   <main class="board">
     <section class="column" id="todo-col">
