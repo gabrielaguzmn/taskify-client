@@ -1,4 +1,4 @@
-import { registerUser, loginUser, recoverPassword, resetPassword, getMyInformation, updateUser } from "../services/userService.js";
+import { registerUser, loginUser, recoverPassword, resetPassword, getMyInformation, updateUser, logoutUser } from "../services/userService.js";
 import { getTasksByUser, createTask, editTask, deleteTasks } from "../services/taskService.js";
 import { showToast } from "../services/toastService.js";
 import { isAuthenticated } from "../services/userService.js";
@@ -44,10 +44,10 @@ async function loadView(name) {
     if (imgEl) imgEl.src = logo;
   }
 
-  if (name === "login") {
-    const imgEl = document.getElementById("registerLogo");
-    if (imgEl) imgEl.src = logo;
-  }
+  // if (name === "login") {
+  //   const imgEl = document.getElementById("registerLogo");
+  //   if (imgEl) imgEl.src = logo;
+  // }
 
    if (name === "about") {
     const imgEl = document.getElementById("registerLogo");
@@ -55,10 +55,10 @@ async function loadView(name) {
   }
 
 
-  if (name === "register") {
-    const imgEl = document.getElementById("registerLogo");
-    if (imgEl) imgEl.src = logo;
-  }
+  // if (name === "register") {
+  //   const imgEl = document.getElementById("registerLogo");
+  //   if (imgEl) imgEl.src = logo;
+  // }
 
   if (name === "home") initHome();
   if (name === "login") initLogin();
@@ -555,8 +555,9 @@ function initDashboard() {
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
-      logout();
-    });
+      showSpinner();
+      logoutUser()
+      hideSpinner();});
   }
 
   const profileBtn = document.getElementById("profileBtn");

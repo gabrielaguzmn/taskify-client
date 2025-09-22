@@ -160,32 +160,6 @@ export async function recoverPassword({ email }) {
   }
 }
 
-
-/**
- * Logout a user from the system (client side only).
- *
- * @async
- * @function logoutUser
- * @returns {Promise<void>} Redirects user to home after logout
- */
-
-// Revisar para manejar con cookies
-export async function logoutUser() {
-  try {
-    localStorage.removeItem("authToken");
-    sessionStorage.removeItem("authToken");
-
-    showToast("Successfully logged out", "success");
-
-    setTimeout(() => {
-      window.location.href = "/#/home";
-    }, 500);
-  } catch (err) {
-    showToast("Logout error", "error");
-    throw err;
-  }
-}
-
 export async function isAuthenticated() {
   try {
     // This endpoint should be protected by your middleware
@@ -193,5 +167,18 @@ export async function isAuthenticated() {
     return !!user
   } catch (err) {
     return false;
+  }
+}
+
+export async function logoutUser(){
+  try {
+    await http.post("/api/users/logout"); 
+    showToast("Successfully logged out", "success");
+    setTimeout(() => {
+      window.location.hash = "#/login";
+    }, 3000);
+  } catch (err) {
+    showToast("Logout error", "error");
+    throw err;
   }
 }
