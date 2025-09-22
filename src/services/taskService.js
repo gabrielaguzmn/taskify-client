@@ -1,5 +1,4 @@
 import { http } from "../api/http.js";
-import { getCurrentUser } from "../routes/route.js";
 import { showToast } from "./toastService.js";
 
 // export const taskService = {
@@ -33,6 +32,7 @@ export const taskService = {
 export async function getTasks() {
   return http.get("/userTask/");
 }
+
 export async function editTask({ idTask, title, description, date, status, userId}) {
   // Get current user ID automatically
   // const currentUser = getCurrentUser();

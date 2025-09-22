@@ -86,18 +86,10 @@ export async function loginUser({ email, password }) {
   try {
     const res = await http.post("/api/users/login", { email, password });
     if (res.token) {
-      const user = decodeJWT(res.token);
-
-      if (user) {
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        localStorage.setItem("isLoggedIn", "true");
 
         showToast("Successfully logged in", "success", 5000);
         return res;
       } else {
-        throw new Error("Invalid token format")
-      }
-    } else {
       throw new Error("No token received from server");
     }
   } catch (err) {
@@ -112,22 +104,7 @@ export async function loginUser({ email, password }) {
   }
 }
 
-function decodeJWT(token) {
-  try {
-    const payload = token.split('.')[1];
-    const decoded = JSON.parse(atob(payload));
 
-    // Return user object from token payload
-    return {
-      id: decoded.id || decoded.userId || decoded._id,
-      email: decoded.email,
-      // Add other fields your token contains
-    };
-  } catch (error) {
-    console.error("Error decoding JWT:", error);
-    return null;
-  }
-}
 
 // Missing the authentication validation
 export async function updateUser(userId, userData) {
@@ -191,6 +168,8 @@ export async function recoverPassword({ email }) {
  * @function logoutUser
  * @returns {Promise<void>} Redirects user to home after logout
  */
+
+// Revisar para manejar con cookies
 export async function logoutUser() {
   try {
     localStorage.removeItem("authToken");
