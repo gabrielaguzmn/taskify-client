@@ -1,6 +1,6 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #E9F2DF; 
   margin: 0;
   display: flex;
   justify-content: center;
@@ -13,43 +13,69 @@ body {
 }
 
 .about-card {
-  background: #d3d3d3;
-  padding: 30px;
-  border-radius: 10px;
-  max-width: 400px;
+  background: #14401A; 
+  color: #E9F2DF;
+  padding: 40px 30px;
+  border-radius: 16px;
+  max-width: 420px;
   margin: 0 auto;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.25);
+  animation: fadeInUp 0.7s ease-out;
 }
 
 .about-logo {
-  width: 150px;        /* 👈 ancho máximo */
+  width: 140px;
   height: auto;
-  max-height: 150px;   /* 👈 altura máxima */
+  max-height: 140px;
   margin-bottom: 20px;
-  object-fit: contain; /* 👈 mantiene la proporción */
+  object-fit: contain;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  background: #fff;
+  padding: 8px;
 }
 
 .about-card h2 {
   margin: 15px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #26A62F; 
 }
 
 .about-card p {
-  font-size: 14px;
-  color: #333;
-  line-height: 1.5;
+  font-size: 15px;
+  color: #E9F2DF;
+  opacity: 0.95;
+  line-height: 1.6;
 }
 
+/* Botón volver */
 .back-btn {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background: #ccc;
+  margin-top: 22px;
+  padding: 12px 28px;
+  background: #26A62F; 
   border: none;
-  border-radius: 20px;
+  border-radius: 25px;
   cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  transition: background 0.3s, transform 0.2s;
+  box-shadow: 0 4px 10px rgba(38,166,47,0.4);
 }
 
 .back-btn:hover {
-  background: #aaa;
+  background: #3D7340; 
+  transform: translateY(-2px);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

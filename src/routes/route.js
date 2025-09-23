@@ -1,6 +1,7 @@
-import { registerUser, loginUser, recoverPassword, resetPassword, getMyInformation, updateUser } from "../services/userService.js";
-import { getTasksByUser, createTask, editTask } from "../services/taskService.js";
-
+import { registerUser, loginUser, recoverPassword, resetPassword, getMyInformation, updateUser, logoutUser } from "../services/userService.js";
+import { getTasksByUser, createTask, editTask, deleteTasks } from "../services/taskService.js";
+import { showToast } from "../services/toastService.js";
+import { isAuthenticated } from "../services/userService.js";
 
 import logo from "../assets/img/logoPI.jpg";
 
@@ -43,10 +44,10 @@ async function loadView(name) {
     if (imgEl) imgEl.src = logo;
   }
 
-  if (name === "login") {
-    const imgEl = document.getElementById("registerLogo");
-    if (imgEl) imgEl.src = logo;
-  }
+  // if (name === "login") {
+  //   const imgEl = document.getElementById("registerLogo");
+  //   if (imgEl) imgEl.src = logo;
+  // }
 
    if (name === "about") {
     const imgEl = document.getElementById("registerLogo");
@@ -54,10 +55,10 @@ async function loadView(name) {
   }
 
 
-  if (name === "register") {
-    const imgEl = document.getElementById("registerLogo");
-    if (imgEl) imgEl.src = logo;
-  }
+  // if (name === "register") {
+  //   const imgEl = document.getElementById("registerLogo");
+  //   if (imgEl) imgEl.src = logo;
+  // }
 
   if (name === "home") initHome();
   if (name === "login") initLogin();
@@ -68,7 +69,12 @@ async function loadView(name) {
   if (name === "profile") initProfile();
   if (name === "profileEdit") initProfileEdit();
   if (name === "about") initAbout();
+
+  document.body.className = ""; // elimina todas las clases previas
+  document.body.classList.add(`${name}-page`); // añade la clase específica de la vista 
 }
+
+
 
 /**
  * Initialize the hash-based router.
@@ -83,27 +89,59 @@ export function initRouter() {
  * Handle the current route based on the location hash.
  * Fallback to 'login' if the route is unknown.
  */
-
 function handleRoute() {
-  // Get the full hash including query parameters
   const fullHash = location.hash.startsWith("#/") ? location.hash.slice(2) : "";
-  
-  // Split path from query parameters
-  const [path, queryString] = fullHash.split('?');
-  
-  // Default to 'home' if no path
-  const routePath = path || "home";
+    const [path, queryString] = fullHash.split('?');
+    const routePath = path || "home";
   
   const known = ["home", "login", "register", "recover", "dashboard", "changePassword", "about", "profile", "profileEdit"];
   const route = known.includes(routePath) ? routePath : "home";
+  
+  const protectedRoutes = ["dashboard", "profile", "profileEdit"];
 
-  // Store query parameters globally so views can access them
-  window.currentQueryParams = queryString ? new URLSearchParams(queryString) : new URLSearchParams();
+  if (route === "login" || route === "register" || route === "home") {
+    isAuthenticated().then((loggedIn) => {
+      if (loggedIn) {
+        location.hash = "#/dashboard";
+        return;
+      }
+      continueToLoadView();
+    }).catch(() => {
+      continueToLoadView();
+    });
+    return;
+  }
 
-  loadView(route).catch((err) => {
-    console.error(err);
-    app.innerHTML = `<p style="color:#ff4d4d">Error loading the view.</p>`;
-  });
+  if (protectedRoutes.includes(route)) {
+    showSpinner();
+    isAuthenticated().then((loggedIn) => {
+      hideSpinner();
+      if (!loggedIn) {
+        showToast("Please log in to access this feature", "error");
+        setTimeout(() => {
+          location.hash = "#/login";
+        }, 1000);
+        return;
+      }
+      continueToLoadView();
+    }).catch((error) => {
+      hideSpinner();
+      showToast("Authentication error. Please log in again.", "error");
+      setTimeout(() => {
+        location.hash = "#/login";
+      }, 1000);
+    });
+    return;
+  }
+  continueToLoadView();
+
+  function continueToLoadView() {
+    window.currentQueryParams = queryString ? new URLSearchParams(queryString) : new URLSearchParams();
+    loadView(route).catch((err) => {
+      console.error("Error loading view:", err);
+      app.innerHTML = `<p style="color:#ff4d4d">Error loading the view: ${route}</p>`;
+    });
+  }
 }
 
 function showSpinner() {
@@ -170,22 +208,6 @@ let token = null;
     token = window.currentQueryParams.get('token');
   }
   
-  // Method 2: Fallback - try to get from URL search params directly
-  if (!token) {
-    const urlParams = new URLSearchParams(window.location.search);
-    token = urlParams.get('token');
-  }
-  
-  // Method 3: Fallback - try to get from hash part after '?'
-  if (!token) {
-    const hashPart = window.location.hash;
-    if (hashPart.includes('?')) {
-      const queryPart = hashPart.split('?')[1];
-      const params = new URLSearchParams(queryPart);
-      token = params.get('token');
-    }
-  }
-  
   const form = document.getElementById("changePasswordForm");
   const msg = document.getElementById("changePasswordMsg");
   const acceptBtn = document.getElementById("acceptBtn");
@@ -212,7 +234,6 @@ let token = null;
   if (!token) {
     showMessage('Invalid or missing reset token. Please request a new password reset.', 'error');
     if (acceptBtn) acceptBtn.disabled = true;
-    console.error('Invalid token:', token);
     return;
   }
 
@@ -276,8 +297,7 @@ let token = null;
         }, 5000);
 
       } catch (error) {
-        console.error('Password reset error:', error);
-        showMessage(error.message || 'An error occurred. Please try again.', 'error');
+        showMessage(error.message, 'error');
         acceptBtn.disabled = false;
         acceptBtn.textContent = 'Accept';
       } finally {
@@ -345,7 +365,6 @@ function initLogin() {
         email: emailInput.value.trim(),
         password: passInput.value.trim(),
       });
-      // console.log("The login has succeeded!!!", response);
 
       msg.textContent = "Inicio de sesión exitoso!";
       msg.className = "feedback success";
@@ -470,8 +489,6 @@ function initRegister() {
       setTimeout(() => (location.hash = "#/login"), 800);
 
     } catch (err) {
-      console.error("Error registrandote:", err);
-
       let errorMessage = err;
 
       msg.textContent = errorMessage;
@@ -493,7 +510,6 @@ function initRegister() {
 function initRecover() {
   const form = document.getElementById("recoverForm");
   const msg = document.getElementById("recoverMsg");
-  const emailInput = document.getElementById("email");
   if (!form) return;
 
 email.addEventListener("input", () => {
@@ -524,19 +540,32 @@ email.addEventListener("input", () => {
  * Handles CRUD operations for tasks.
  */
 function initDashboard() {
+
   const form = document.getElementById("taskForm");
   const list = document.getElementById("taskList");
   const open = document.getElementById("openModal");
   const close = document.getElementById("closeModal");
   const modal = document.getElementById("taskModal");
+  const deleteModal = document.getElementById("confirmModal");
+  const deleteModalNo = document.getElementById("deleteModalNo");
+  const deleteModalSi = document.getElementById("deleteModalSi");
   const msg = document.getElementById("taskMsg"); 
   let taskId = null;
+
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
-      logout();
-    });
+      showSpinner();
+      logoutUser()
+      hideSpinner();});
   }
+
+  const profileBtn = document.getElementById("profileBtn");
+if (profileBtn) {
+  profileBtn.addEventListener("click", () => {
+    location.hash = "#/profile"; // 🔹 redirige a la vista perfil
+  });
+}
 
   if (!form || !modal || !open || !close) return;
 
@@ -546,6 +575,13 @@ function initDashboard() {
     modal.setAttribute("aria-hidden", show ? "false" : "true");
     if (show) document.getElementById("title").focus();
   };
+  
+  const toggleDelete = (show) => {
+        deleteModal.classList.toggle("open", show);
+        deleteModal.setAttribute("aria-hidden", show ? "false" : "true");
+        if (show) document.getElementById("title").focus();
+        };
+
 
   open.addEventListener("click", () => {taskId = null;
                                         toggle(true);
@@ -585,6 +621,11 @@ function initDashboard() {
     `;
 
     const editButton = taskCard.querySelector(".edit");
+    const deleteButton = taskCard.querySelector(".delete");
+    
+
+
+  
     if (editButton) {
       
       editButton.addEventListener("click", () => {
@@ -605,6 +646,31 @@ function initDashboard() {
     });
   }
 
+
+  const closeDelete = document.getElementById("closeModalDelete");
+  
+  
+
+      if (deleteButton) {
+          // console.log("click Delete");
+          deleteButton.addEventListener("click", () => {
+          taskId = task._id; 
+          console.log("Taskid: ", taskId)
+          toggleDelete(true); // abre modal de eliminar
+        } );
+     }
+
+  closeDelete.addEventListener("click", () => toggleDelete(false));
+  deleteModalNo.addEventListener("click", () => toggleDelete(false));
+  
+
+
+
+  document.addEventListener("keydown", (e) => {
+    
+    if (e.key === "Escape") toggleDelete(false);
+  });
+
     if (task.status === "to do") {
       document.getElementById("todoList").appendChild(taskCard);
     } else if (task.status === "doing") {
@@ -614,38 +680,33 @@ function initDashboard() {
     }
   };
 
-  // --- Cargar tareas al iniciar ---
   (async () => {
     try {
-      const tasks = await getTasksByUser(getCurrentUser().id);
-      console.log("Id user::", getCurrentUser().id);
+          const userInfo = await getMyInformation();
+      const userId = userInfo._id;
+      const tasks = await getTasksByUser(userId);
       tasks.forEach(renderTask);
     } catch (err) {
-      console.error("Error loading tasks:", err);
+      console.error("Error cargando tareas:", err);
     }
   })();
+
+  deleteModalSi.addEventListener("click", () => {
+    console.log("Taskid: ", taskId);
+    deleteTasks(taskId);
+    toggleDelete(false);
+    renderTask(savedTask);
+  });
+
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     try {
       showSpinner();
-      
-      const currentUser = getCurrentUser();
 
-      if (!currentUser) {
-        console.error("No user found in localStorage");
-        alert("Please log in again");
-        location.hash = "#/login";
-        return;
-      }
-
-      if (!currentUser.id) {
-        console.error("User object missing _id:", currentUser);
-        alert("Invalid user session. Please log in again");
-        location.hash = "#/login";
-        return;
-      }
+          const userInfo = await getMyInformation();
+      const currentUserId = userInfo._id;
 
       const day = document.getElementById("day").value.padStart(2, "0");
       const month = document.getElementById("month").value.padStart(2, "0");
@@ -676,7 +737,7 @@ function initDashboard() {
         dateString,
         timeString,
         status: document.getElementById("status").value,
-        userId: currentUser.id
+        userId: currentUserId
       };
 
       const TaskDataEdit = {
@@ -686,7 +747,7 @@ function initDashboard() {
         dateString,
         timeString,
         status: document.getElementById("status").value,
-        userId: currentUser.id,
+        userId: currentUserId,
         idTask: taskId
       };
 
@@ -694,26 +755,26 @@ function initDashboard() {
           if (taskId) {
             // --- Update existing task ---
             savedTask = await editTask(TaskDataEdit);
+            document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
             taskId = null; // Reset after editing
         // Opcional: eliminar tarjeta vieja y renderizar nueva
-          document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
+          
           } else {
         // --- Create new task ---
             console.log("Creating new task with data:", taskId);
             savedTask = await createTask(TaskData);
         }
       
-      renderTask(savedTask);
       
+      // --- Toggle modalDelete---
       
-      console.log("Task created successfully:", savedTask);
+    
 
-      // ✅ Clean form reset and modal close
+      renderTask(savedTask);
       form.reset();
       toggle(false);
 
     } catch (err) {
-      console.error("Something went wrong:", err.message);
       alert(`Error creating task: ${err.message}`);
     } finally {
       hideSpinner();
@@ -721,13 +782,10 @@ function initDashboard() {
   });
 }
 
+
+
 function initProfile() {
-  const currentUser = getCurrentUser();
-  if (!currentUser) {
-    alert("Debes iniciar sesión");
-    location.hash = "#/login";
-    return;
-  }
+
   (async() => {
     try {
   const userInfo = await getMyInformation()
@@ -738,7 +796,7 @@ function initProfile() {
 
     }
     catch(error) {
-      console.log("An error has happened retrieving your user information", error)
+      showToast("Error recuperando tu informacion personal", "error");
 
     }
   })()
@@ -753,20 +811,15 @@ function initProfile() {
 
 /* ---- NUEVO: Vista de edición de perfil ---- */
 function initProfileEdit() {
-  const currentUser = getCurrentUser();
+ 
   const form = document.getElementById("editProfileForm");
   const msg = document.getElementById("editMsg");
 
-  if (!currentUser) {
-    alert("Debes iniciar sesión");
-
-    location.hash = "#/login";
-    return;
-  }
-
     (async() => {
     try {
+
   const userInfo = await getMyInformation()
+
   const editNameInput = document.getElementById("editName");
   const editLastNameInput = document.getElementById("editLastName");
   const editEmailInput = document.getElementById("editEmail");
@@ -778,7 +831,7 @@ function initProfileEdit() {
   
     }
     catch(error) {
-      console.log("An error has happened retrieving your user information", error)
+      showToast("Error loading profile data", "error");
 
     }
   })()
@@ -786,89 +839,59 @@ function initProfileEdit() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+
     msg.textContent = "Actualizando...";
     msg.className = "feedback";
 
     try {
-const updatedData = {
+
+        const userInfo = await getMyInformation()
+
+              const currentUserId = userInfo._id;      
+
+      const updatedData = {
         name: document.getElementById("editName").value.trim(),        
         lastName: document.getElementById("editLastName").value.trim(), 
         email: document.getElementById("editEmail").value.trim(),          
         age: document.getElementById("editAge").value.trim()            
       };
 
-      const result = await updateUser(currentUser.id || currentUser._id, updatedData);
-      localStorage.setItem("currentUser", JSON.stringify(result));
+      const result = await updateUser(currentUserId, updatedData);
+      
+      // if (result.user) {
+      //   localStorage.setItem("currentUser", JSON.stringify(result.user));
+      // }
 
       msg.textContent = "Perfil actualizado!";
-      msg.classList.add("success");
+      msg.className = "feedback success";
 
+      showToast("Profile updated successfully!", "success");
       setTimeout(() => (location.hash = "#/profile"), 800);
     } catch (err) {
-      console.error("Error actualizando perfil:", err);
-      msg.textContent = `Error: ${err.message}`;
-      msg.classList.add("error");
+      msg.textContent = err.message;
+      msg.className = "feedback error";
+      showToast("Error updating profile", "error");
     }
   });
 }
 
-/**
- * Get the currently logged-in user
- * @returns {Object|null} User object or null if not logged in
- */
-export function getCurrentUser() {
+function decodeJWT(token) {
   try {
-    console.log("Getting current user from localStorage..."); // Debug log
-    const userStr = localStorage.getItem("currentUser");
-    console.log("Raw user string:", userStr); // Debug log
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload));
 
-    if (!userStr) {
-      console.log("No user string found in localStorage");
-      return null;
-    }
-
-    
-
-    const user = JSON.parse(userStr);
-    // console.log("Parsed user object:", user); // Debug log
-
-    // Validate user object structure
-    if (!user || typeof user !== 'object') {
-      console.error("Invalid user object structure");
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('isLoggedIn');
-      return null;
-    }
-
-    return user;
+    // Return user object from token payload
+    return {
+      id: decoded.id || decoded.userId || decoded._id,
+      email: decoded.email,
+      // Add other fields your token contains
+    };
   } catch (error) {
-    console.error('Error parsing user data:', error);
-    // Clear corrupted data
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('isLoggedIn');
+    console.error("Error decoding JWT:", error);
     return null;
   }
 }
-
-
-
-/**
- * Check if user is logged in
- * @returns {boolean} True if user is logged in
- */
-export function isLoggedIn() {
-  return localStorage.getItem('isLoggedIn') === 'true';
-}
-
-/**
- * Logout user
- */
-export function logout() { 
-  localStorage.removeItem('currentUser'); 
-  localStorage.removeItem('isLoggedIn'); 
-  location.hash = '#/login'; 
-}
-
 
 function validateRegisterForm(userData) {
   let text = "";

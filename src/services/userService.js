@@ -86,18 +86,10 @@ export async function loginUser({ email, password }) {
   try {
     const res = await http.post("/api/users/login", { email, password });
     if (res.token) {
-      const user = decodeJWT(res.token);
-
-      if (user) {
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        localStorage.setItem("isLoggedIn", "true");
 
         showToast("Successfully logged in", "success", 5000);
         return res;
       } else {
-        throw new Error("Invalid token format")
-      }
-    } else {
       throw new Error("No token received from server");
     }
   } catch (err) {
@@ -112,22 +104,7 @@ export async function loginUser({ email, password }) {
   }
 }
 
-function decodeJWT(token) {
-  try {
-    const payload = token.split('.')[1];
-    const decoded = JSON.parse(atob(payload));
 
-    // Return user object from token payload
-    return {
-      id: decoded.id || decoded.userId || decoded._id,
-      email: decoded.email,
-      // Add other fields your token contains
-    };
-  } catch (error) {
-    console.error("Error decoding JWT:", error);
-    return null;
-  }
-}
 
 // Missing the authentication validation
 export async function updateUser(userId, userData) {
@@ -183,24 +160,23 @@ export async function recoverPassword({ email }) {
   }
 }
 
-
-/**
- * Logout a user from the system (client side only).
- *
- * @async
- * @function logoutUser
- * @returns {Promise<void>} Redirects user to home after logout
- */
-export async function logoutUser() {
+export async function isAuthenticated() {
   try {
-    localStorage.removeItem("authToken");
-    sessionStorage.removeItem("authToken");
+    // This endpoint should be protected by your middleware
+    const user = await http.get('/api/users/me');
+    return !!user
+  } catch (err) {
+    return false;
+  }
+}
 
+export async function logoutUser(){
+  try {
+    await http.post("/api/users/logout"); 
     showToast("Successfully logged out", "success");
-
     setTimeout(() => {
-      window.location.href = "/#/home";
-    }, 500);
+      window.location.hash = "#/login";
+    }, 3000);
   } catch (err) {
     showToast("Logout error", "error");
     throw err;

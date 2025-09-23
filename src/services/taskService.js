@@ -1,5 +1,4 @@
 import { http } from "../api/http.js";
-import { getCurrentUser } from "../routes/route.js";
 import { showToast } from "./toastService.js";
 
 // export const taskService = {
@@ -33,6 +32,7 @@ export const taskService = {
 export async function getTasks() {
   return http.get("/userTask/");
 }
+
 export async function editTask({ idTask, title, description, date, status, userId}) {
   // Get current user ID automatically
   // const currentUser = getCurrentUser();
@@ -47,10 +47,9 @@ export async function editTask({ idTask, title, description, date, status, userI
       status, 
       userId 
     });
-
     showToast("Task edit successfully", "success");
 
-    return response;
+    return response.task;
   } catch (err) {
     if (err.status >= 500) {
       // Error de servidor (genérico)
@@ -78,7 +77,6 @@ export async function createTask({ title, description, date, status, userId}) {
       status, 
       userId 
     });
-
     showToast("Task created successfully", "success");
 
     return response;
@@ -98,3 +96,7 @@ export async function createTask({ title, description, date, status, userId}) {
 export async function getTasksByUser(id) {
 
   return http.get(`/api/tasks/userTask/${id}`);}
+
+export async function deleteTasks(id) {
+
+  return http.del(`/api/tasks/${id}`);}

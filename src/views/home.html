@@ -8,9 +8,9 @@
 </head>
 <body>
   <!-- Header -->
-  <header class="navbar">
+  <header class="navbar" role="banner">
     <div class="logo">Taskify</div>
-    <nav>
+    <nav role="navigation" aria-label="Main Navigation">
       <a href="#/about" class="about-link">About us</a>
     </nav>
   </header>
@@ -18,19 +18,59 @@
   <!-- Main -->
   <main class="home-container">
     <div class="home-left">
+      <span class="home-badge">Boost your productivity</span>
       <h1 class="home-title">Taskify</h1>
       <p class="home-text">
         Taskify is a web application that provides the user an easy and accesible way to manage its tasks using a kanban system
       </p>
+      <ul class="features-list">
+        <li>✅ Easy task management</li>
+        <li>🚀 Kanban workflow</li>
+        <li>🔒 Secure & reliable</li>
+      </ul>
       <div class="home-buttons">
-        <a href="#/login" class="btn">Login</a>
+        <a href="#/login" class="btn btn-primary">Login</a>
         <a href="#/register" class="btn btn-secondary">Sign Up</a>
       </div>
     </div>
-
-    <div class="home-right">
-      <img src="/src/assets/img/logoPI.jpg" alt="Taskify Logo">
+    <div class="home-right" aria-hidden="false">
+    <div class="card">
+      <picture>
+      <source srcset="/src/assets/img/logoPI.jpg" type="image/jpg">
+      <img src="/src/assets/img/logoPI.jpg" alt="Taskify Logo" loading="lazy" width="400" height="400">
+      </picture>
     </div>
   </main>
+  <footer class="footer">
+  <div class="footer-container">
+    <div class="footer-logo">
+      <div class="logo-circle">
+        <img src="/src/assets/img/logoPI.jpg" alt="Taskify Logo" loading="lazy">
+      </div>
+      <h3>Taskify</h3>
+      <p>Organiza tus tareas de manera simple y eficaz.</p>
+    </div>
+    <div class="footer-sitemap">
+      <h4>Mapa del Sitio</h4>
+      <div class="sitemap-columns">
+        <ul>
+          <li><a href="#/" class="active">Home</a></li>
+          <li><a href="#/login">Login</a></li>
+          <li><a href="#/dashboard">Dashboard</a></li>
+          <li><a href="#/add-task">Add Task</a></li>
+        </ul>
+        <ul>
+          <li><a href="#/edit-task">Edit Task</a></li>
+          <li><a href="#/recover-password">Recover Password</a></li>
+          <li><a href="#/change-password">Change Password</a></li>
+          <li><a href="#/signup">Sign Up</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Taskify. Todos los derechos reservados.</p>
+  </div>
+</footer>
 </body>
 </html>
