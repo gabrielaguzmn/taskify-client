@@ -12,8 +12,6 @@ import '../styles/changePassword.css'
 import '../styles/recover.css'
 import '../styles/register.css'
 
-
-
 const app = document.getElementById("app");
 
 /**
@@ -605,8 +603,10 @@ if (profileBtn) {
   });
 
   const renderTask = (task) => {
-
-    // add the time and hour in a good format
+    const isoDate = task.date
+    const date = isoDate.substring(0,10)
+    const hour = isoDate.substring(11,19)
+    // Extraer fecha y hora de tarea
     const taskCard = document.createElement("div");
     taskCard.className = "task-card";
     taskCard.setAttribute("data-id", task._id);
@@ -614,8 +614,8 @@ if (profileBtn) {
       <h3>${task.title || "Untitled Task"}</h3>
       <p>${task.description || "No description"}</p>
       <div class="meta">
-        <span>📅 ${task.date}</span>
-        <span>⏰ ${task.time}</span>
+        <span>📅 ${date}</span>
+        <span>⏰ ${hour}</span>
       </div>
       <div class="actions">
         <button class="edit">✏️</button>
@@ -718,6 +718,7 @@ if (profileBtn) {
 
       const hour = document.getElementById("hour").value.padStart(2, "0");
       const minute = document.getElementById("minute").value.padStart(2, "0");
+
       if (!day || !month || !year) {
         showToast("Por favor llena todos los campos", "error");
         return;
@@ -737,8 +738,6 @@ if (profileBtn) {
         title: document.getElementById("title").value.trim(),
         description: document.getElementById("description").value.trim(),
         date: combinedDate,
-        dateString,
-        timeString,
         status: document.getElementById("status").value,
         userId: currentUserId
       };
@@ -770,15 +769,12 @@ if (profileBtn) {
         }
       
       renderTask(savedTask);
-      
-      //console.log("Task created successfully:", savedTask);
-
-      // ✅ Clean form reset and modal close
       form.reset();
       toggle(false);
 
     } catch (err) {
-      showToast("Error creando tarea", "error");
+            console.error("The following error has happened:",err)
+
     } finally {
       hideSpinner();
     }
