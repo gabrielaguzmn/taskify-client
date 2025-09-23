@@ -86,7 +86,7 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  padding: 100px 24px 24px; /* arriba más espacio por el topbar fijo */
+  padding: 100px 24px 24px; 
   max-width: 1200px;
   margin: auto;
 }

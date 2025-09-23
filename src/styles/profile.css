@@ -7,7 +7,7 @@
   --radius: 18px;
 }
 
-/* ✅ Todos los estilos encapsulados */
+/*  Todos los estilos encapsulados */
 body.profile-page,
 body.profile-edit-page {
   margin: 0;
@@ -68,7 +68,7 @@ body.profile-edit-page {
 .field-box label {
   font-weight: 600;
   font-size: 15px;
-  color: #E9F2DF;
+  color: #ffffff;
 }
 
 .field-box input {
