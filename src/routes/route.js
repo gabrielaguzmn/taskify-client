@@ -99,7 +99,7 @@ function handleRoute() {
   
   const protectedRoutes = ["dashboard", "profile", "profileEdit"];
 
-  if (route === "login" || route === "register") {
+  if (route === "login" || route === "register" || route === "home") {
     isAuthenticated().then((loggedIn) => {
       if (loggedIn) {
         location.hash = "#/dashboard";
