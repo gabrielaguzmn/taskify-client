@@ -581,6 +581,7 @@ function initDashboard() {
   const renderTask = (task) => {
     const taskCard = document.createElement("div");
     taskCard.className = "task-card";
+    taskCard.setAttribute("data-id", task._id);
     taskCard.innerHTML = `
       <h3>${task.title || "Untitled Task"}</h3>
       <p>${task.description || "No description"}</p>
@@ -601,7 +602,7 @@ function initDashboard() {
 
   
     if (editButton) {
-      
+      console.log("click edit view")
       editButton.addEventListener("click", () => {
       taskId = task._id; 
       document.getElementById("title").value = task.title || "";
@@ -626,7 +627,7 @@ function initDashboard() {
   
 
       if (deleteButton) {
-          console.log("click Delete");
+          console.log("click Delete view");
           deleteButton.addEventListener("click", () => {
           taskId = task._id; 
           console.log("Taskid: ", taskId)
@@ -668,7 +669,8 @@ function initDashboard() {
     console.log("Taskid: ", taskId);
     deleteTasks(taskId);
     toggleDelete(false);
-    renderTask(savedTask);
+    document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
+    //renderTask(savedTask);
   });
 
 
@@ -741,6 +743,7 @@ function initDashboard() {
           if (taskId) {
             // --- Update existing task ---
             savedTask = await editTask(TaskDataEdit);
+            console.log("Task id: ", taskId)
             document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
             taskId = null; // Reset after editing
         // Opcional: eliminar tarjeta vieja y renderizar nueva
@@ -751,15 +754,9 @@ function initDashboard() {
             savedTask = await createTask(TaskData);
         }
       
-      
-      // --- Toggle modalDelete---
-      
-    
-
       renderTask(savedTask);
       
-      
-      console.log("Task created successfully:", savedTask);
+      //console.log("Task created successfully:", savedTask);
 
       // ✅ Clean form reset and modal close
       form.reset();
@@ -785,9 +782,9 @@ function initProfile() {
     try {
   const userInfo = await getMyInformation()
       document.getElementById("profileName").textContent = userInfo.name || "";
-  document.getElementById("profileLastName").textContent = userInfo.lastName || "";
-  document.getElementById("profileEmail").textContent = userInfo.email || "";
-  document.getElementById("profileAge").textContent = userInfo.age || "";
+      document.getElementById("profileLastName").textContent = userInfo.lastName || "";
+      document.getElementById("profileEmail").textContent = userInfo.email || "";
+      document.getElementById("profileAge").textContent = userInfo.age || "";
 
     }
     catch(error) {

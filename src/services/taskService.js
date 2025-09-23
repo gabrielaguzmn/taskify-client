@@ -47,10 +47,10 @@ export async function editTask({ idTask, title, description, date, status, userI
       status, 
       userId 
     });
-    console.log("🔍 editTask response:", response);
+    console.log("🔍 editTask response2:", response);
     showToast("Task edit successfully", "success");
 
-    return response.task;
+    return response;
   } catch (err) {
     if (err.status >= 500) {
       // Error de servidor (genérico)
