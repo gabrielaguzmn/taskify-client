@@ -120,7 +120,6 @@ export async function updateUser(userId, userData) {
 
     const response = await http.put("/api/users/me", updatePayload);
     
-    showToast("Usuario editado exitosamente!", "success");
     return response;
 
   } catch (error) {
