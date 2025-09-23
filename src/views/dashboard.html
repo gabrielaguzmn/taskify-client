@@ -15,8 +15,8 @@
     <h1 class="app-title">Taskify</h1>
 
     <div class="right-buttons">
-      <button id="openModal" class="btn-primary">+ Add Task</button>
-      <button id="logoutBtn" class="btn-secondary">Logout</button>
+      <button id="openModal" class="btn-primary">+ Añadir tarea</button>
+      <button id="logoutBtn" class="btn-secondary">Cerrar sesión</button>
     </div>
   </header>
   <!-- Tablero principal -->
@@ -41,24 +41,24 @@
   <div id="taskModal" class="overlay" aria-hidden="true">
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <header class="modal-header">
-        <h2 id="modalTitle">Add New Task</h2>
+        <h2 id="modalTitle">Añadir Tarea</h2>
         <button id="closeModal" class="icon-btn" aria-label="Close">&times;</button>
       </header>
 
       <div class="modal-body">
         <form id="taskForm" autocomplete="off">
           <div class="field-row">
-            <label for="title">Title</label>
+            <label for="title">Titulo</label>
             <input id="title" name="title" type="text" placeholder=" " required />
           </div>
 
           <div class="field-row">
-            <label for="description">Description</label>
+            <label for="description">Descripcion</label>
             <input id="description" name="description" type="text" placeholder=" " />
           </div>
 
           <div class="field-row">
-            <label for="status">Status</label>
+            <label for="status">Estado</label>
             <select id="status" name="status" class="select">
               <option value="to do">To do</option>
               <option value="doing">Doing</option>
@@ -108,13 +108,13 @@
   <div id="confirmModal" class="overlay" aria-hidden="true">
   <section class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
     <header class="modal-header">
-      <h2 id="confirmTitle">Estas seguro?</h2>
+      <h2 id="confirmTitle">¿Estas seguro?</h2>
       <button id="closeModalDelete" class="icon-btn" aria-label="Close">&times;</button>
     </header>
 
     <div class="modal-body">
       <div class="actions">
-        <button id="deleteModalSi" class="btn-cta">Yes</button>
+        <button id="deleteModalSi" class="btn-cta">Si</button>
         <button id="deleteModalNo" class="btn-secondary">No</button>
       </div>
     </div>
