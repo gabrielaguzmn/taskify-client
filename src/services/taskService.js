@@ -49,7 +49,7 @@ export async function editTask({ idTask, title, description, date, status, userI
     });
     showToast("Tarea editada exitosamente!", "success");
 
-    return response.task;
+    return response;
   } catch (err) {
     if (err.status >= 500) {
       // Error de servidor (genérico)

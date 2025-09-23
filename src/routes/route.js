@@ -609,6 +609,7 @@ if (profileBtn) {
     // add the time and hour in a good format
     const taskCard = document.createElement("div");
     taskCard.className = "task-card";
+    taskCard.setAttribute("data-id", task._id);
     taskCard.innerHTML = `
       <h3>${task.title || "Untitled Task"}</h3>
       <p>${task.description || "No description"}</p>
@@ -629,7 +630,7 @@ if (profileBtn) {
 
   
     if (editButton) {
-      
+      console.log("click edit view")
       editButton.addEventListener("click", () => {
       taskId = task._id; 
       document.getElementById("title").value = task.title || "";
@@ -697,7 +698,8 @@ if (profileBtn) {
     console.log("Taskid: ", taskId);
     deleteTasks(taskId);
     toggleDelete(false);
-    renderTask(savedTask);
+    document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
+    //renderTask(savedTask);
   });
 
 
@@ -756,6 +758,7 @@ if (profileBtn) {
           if (taskId) {
             // --- Update existing task ---
             savedTask = await editTask(TaskDataEdit);
+            console.log("Task id: ", taskId)
             document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
             taskId = null; // Reset after editing
         // Opcional: eliminar tarjeta vieja y renderizar nueva
@@ -766,12 +769,11 @@ if (profileBtn) {
             savedTask = await createTask(TaskData);
         }
       
-      
-      // --- Toggle modalDelete---
-      
-    
-
       renderTask(savedTask);
+      
+      //console.log("Task created successfully:", savedTask);
+
+      // ✅ Clean form reset and modal close
       form.reset();
       toggle(false);
 
@@ -791,9 +793,9 @@ function initProfile() {
     try {
   const userInfo = await getMyInformation()
       document.getElementById("profileName").textContent = userInfo.name || "";
-  document.getElementById("profileLastName").textContent = userInfo.lastName || "";
-  document.getElementById("profileEmail").textContent = userInfo.email || "";
-  document.getElementById("profileAge").textContent = userInfo.age || "";
+      document.getElementById("profileLastName").textContent = userInfo.lastName || "";
+      document.getElementById("profileEmail").textContent = userInfo.email || "";
+      document.getElementById("profileAge").textContent = userInfo.age || "";
 
     }
     catch(error) {
