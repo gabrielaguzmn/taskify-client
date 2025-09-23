@@ -784,26 +784,61 @@ if (profileBtn) {
 
 
 function initProfile() {
-
-  (async() => {
+  // --- Cargar información del usuario ---
+  (async () => {
     try {
-  const userInfo = await getMyInformation()
+      const userInfo = await getMyInformation();
       document.getElementById("profileName").textContent = userInfo.name || "";
       document.getElementById("profileLastName").textContent = userInfo.lastName || "";
       document.getElementById("profileEmail").textContent = userInfo.email || "";
       document.getElementById("profileAge").textContent = userInfo.age || "";
-
-    }
-    catch(error) {
+    } catch (error) {
       showToast("Error recuperando tu informacion personal", "error");
-
     }
-  })()
+  })();
 
+  // --- Botón Editar perfil ---
   const editBtn = document.getElementById("editProfileBtn");
   if (editBtn) {
     editBtn.addEventListener("click", () => {
       location.hash = "#/profileEdit";
+    });
+  }
+
+  // --- Botón Eliminar perfil ---
+  const deleteBtn = document.getElementById("deleteProfileBtn");
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", async () => {
+      const confirmDelete = confirm(
+        "¿Seguro que quieres eliminar tu perfil? Esta acción no se puede deshacer."
+      );
+      if (!confirmDelete) return;
+
+      try {
+        const currentUser = getCurrentUser();
+        if (!currentUser || !currentUser.id) {
+          showToast("No se encontró el usuario. Inicia sesión nuevamente.", "error");
+          location.hash = "#/login";
+          return;
+        }
+
+        const response = await fetch(`/api/users/${currentUser.id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (response.ok) {
+          showToast("Perfil eliminado correctamente.", "success");
+          localStorage.removeItem("currentUser");
+          location.hash = "#/register"; // o "#/home" según tu flujo
+        } else {
+          const errorData = await response.json();
+          showToast("Error: " + errorData.message, "error");
+        }
+      } catch (err) {
+        console.error("Error eliminando perfil:", err);
+        showToast("Ocurrió un problema al eliminar el perfil.", "error");
+      }
     });
   }
 }
