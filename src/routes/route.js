@@ -2,6 +2,7 @@ import { registerUser, loginUser, recoverPassword, resetPassword, getMyInformati
 import { getTasksByUser, createTask, editTask, deleteTasks } from "../services/taskService.js";
 import { showToast } from "../services/toastService.js";
 import { isAuthenticated } from "../services/userService.js";
+import { http } from "../api/http.js";
 
 import logo from "../assets/img/logoPI.jpg";
 
@@ -784,21 +785,17 @@ if (profileBtn) {
 
 
 function initProfile() {
-
-  (async() => {
+  (async () => {
     try {
-  const userInfo = await getMyInformation()
+      const userInfo = await getMyInformation();
       document.getElementById("profileName").textContent = userInfo.name || "";
       document.getElementById("profileLastName").textContent = userInfo.lastName || "";
       document.getElementById("profileEmail").textContent = userInfo.email || "";
       document.getElementById("profileAge").textContent = userInfo.age || "";
-
-    }
-    catch(error) {
+    } catch (error) {
       showToast("Error recuperando tu informacion personal", "error");
-
     }
-  })()
+  })();
 
   const editBtn = document.getElementById("editProfileBtn");
   if (editBtn) {
@@ -806,8 +803,52 @@ function initProfile() {
       location.hash = "#/profileEdit";
     });
   }
-}
+ const deleteBtn = document.getElementById("deleteProfileBtn");
+  const modal = document.getElementById("confirmDeleteModal");
+  const confirmBtn = document.getElementById("confirmDeleteBtn");
+  const cancelBtn = document.getElementById("cancelDeleteBtn");
+  const closeModalDelete = document.getElementById("closeModalDelete")
 
+      const toggleDeleteModal = (show) => {
+    modal.classList.toggle("open", show);
+    modal.setAttribute("aria-hidden", show ? "false" : "true");
+    
+  };
+  if (closeModalDelete){
+    closeModalDelete.addEventListener("click", ()=>{
+      toggleDeleteModal(false)
+    })
+  }
+
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", () => {
+      console.log("Delete button clicked")
+      toggleDeleteModal(true) // abrir modal
+    });
+  }
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      toggleDeleteModal(false);
+    });
+  }
+
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", async () => {
+      try {
+        await http.del("/api/users/me");
+        showToast("Tu cuenta ha sido eliminada", "success");
+
+        localStorage.clear();
+        location.hash = "#/login";
+      } catch (err) {
+        console.error("Error al eliminar usuario:", err);
+        showToast("No se pudo eliminar la cuenta", "error");
+      } finally {
+toggleDeleteModal(false)      }
+    });
+  }
+}
 /* ---- NUEVO: Vista de edición de perfil ---- */
 function initProfileEdit() {
  
