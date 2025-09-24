@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up</title>
+  <title>Registrarse</title>
   <link rel="stylesheet" href="/src/styles/register.css">
 </head>
 <body>
-  <div class="auth-shell">
-    
+  <div class="register-layout">
+
     <!-- Panel formulario -->
-    <section class="panel-form">
-      <h2>Registrate</h2>
+    <section class="register-form">
+      <h2>Regístrate</h2>
 
       <form id="registerForm">
         <div class="field">
@@ -24,7 +24,7 @@
           <input type="number" id="age" placeholder="Edad" min="0" max="90" required>
         </div>
         <div class="field">
-          <input type="email" id="email" placeholder="Email" required>
+          <input type="email" id="email" placeholder="Correo" required>
         </div>
         <div class="field">
           <input type="password" id="password" placeholder="Contraseña" required>
@@ -33,7 +33,7 @@
           <input type="password" id="confirm" placeholder="Confirmar contraseña" required>
         </div>
 
-        <button type="submit" id="registerBtn" class="btn" disabled>Registrate</button>
+        <button type="submit" id="registerBtn" class="btn" disabled>Registrarme</button>
 
         <p id="registerMsg" class="feedback" aria-live=""></p>
 
@@ -44,12 +44,9 @@
     </section>
 
     <!-- Panel imagen -->
-    <aside class="panel-image">
-      <div class="image-box">
-        <img id="registerLogo" src="/src/assets/img/logoPI.jpg" alt="Register side">
-      </div>
+    <aside class="register-image">
+      <img id="registerLogo" src="/src/assets/img/logoPI.jpg" alt="Logo Taskify">
     </aside>
-
   </div>
 </body>
 </html>
