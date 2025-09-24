@@ -2,6 +2,7 @@ import { registerUser, loginUser, recoverPassword, resetPassword, getMyInformati
 import { getTasksByUser, createTask, editTask, deleteTasks } from "../services/taskService.js";
 import { showToast } from "../services/toastService.js";
 import { isAuthenticated } from "../services/userService.js";
+import { http } from "../api/http.js";
 
 import logo from "../assets/img/logoPI.jpg";
 
@@ -784,7 +785,6 @@ if (profileBtn) {
 
 
 function initProfile() {
-  // --- Cargar información del usuario ---
   (async () => {
     try {
       const userInfo = await getMyInformation();
@@ -797,7 +797,6 @@ function initProfile() {
     }
   })();
 
-  // --- Botón Editar perfil ---
   const editBtn = document.getElementById("editProfileBtn");
   if (editBtn) {
     editBtn.addEventListener("click", () => {
@@ -805,44 +804,40 @@ function initProfile() {
     });
   }
 
-  // --- Botón Eliminar perfil ---
   const deleteBtn = document.getElementById("deleteProfileBtn");
+  const modal = document.getElementById("confirmDeleteModal");
+  const confirmBtn = document.getElementById("confirmDeleteBtn");
+  const cancelBtn = document.getElementById("cancelDeleteBtn");
+
   if (deleteBtn) {
-    deleteBtn.addEventListener("click", async () => {
-      const confirmDelete = confirm(
-        "¿Seguro que quieres eliminar tu perfil? Esta acción no se puede deshacer."
-      );
-      if (!confirmDelete) return;
+    deleteBtn.addEventListener("click", () => {
+      modal.style.display = "flex"; // abrir modal
+    });
+  }
 
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      modal.style.display = "none"; // cerrar modal
+    });
+  }
+
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", async () => {
       try {
-        const currentUser = getCurrentUser();
-        if (!currentUser || !currentUser.id) {
-          showToast("No se encontró el usuario. Inicia sesión nuevamente.", "error");
-          location.hash = "#/login";
-          return;
-        }
+        await http.del("/api/users/me");
+        showToast("Tu cuenta ha sido eliminada", "success");
 
-        const response = await fetch(`/api/users/${currentUser.id}`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (response.ok) {
-          showToast("Perfil eliminado correctamente.", "success");
-          localStorage.removeItem("currentUser");
-          location.hash = "#/register"; // o "#/home" según tu flujo
-        } else {
-          const errorData = await response.json();
-          showToast("Error: " + errorData.message, "error");
-        }
+        localStorage.clear();
+        location.hash = "#/login";
       } catch (err) {
-        console.error("Error eliminando perfil:", err);
-        showToast("Ocurrió un problema al eliminar el perfil.", "error");
+        console.error("Error al eliminar usuario:", err);
+        showToast("No se pudo eliminar la cuenta", "error");
+      } finally {
+        modal.style.display = "none"; // cerrar modal
       }
     });
   }
 }
-
 /* ---- NUEVO: Vista de edición de perfil ---- */
 function initProfileEdit() {
  
