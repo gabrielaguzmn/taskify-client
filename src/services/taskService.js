@@ -47,16 +47,16 @@ export async function editTask({ idTask, title, description, date, status, userI
       status, 
       userId 
     });
-    showToast("Task edit successfully", "success");
+    showToast("Tarea editada exitosamente!", "success");
 
-    return response.task;
+    return response;
   } catch (err) {
     if (err.status >= 500) {
       // Error de servidor (genérico)
       showToast("No pudimos editar la tarea, inténtalo más tarde", "error");
     } else {
       // Errores específicos (400, 401, etc.)
-      showToast(err.message || "Error creating task", "error");
+      showToast(err.message, "error");
     }
 
     throw err; // lo relanzamos por si se quiere manejar en otro lado
@@ -77,7 +77,7 @@ export async function createTask({ title, description, date, status, userId}) {
       status, 
       userId 
     });
-    showToast("Task created successfully", "success");
+    showToast("Tarea creada exitosamente!", "success");
 
     return response;
   } catch (err) {
@@ -86,7 +86,7 @@ export async function createTask({ title, description, date, status, userId}) {
       showToast("No pudimos crear la tarea, inténtalo más tarde", "error");
     } else {
       // Errores específicos (400, 401, etc.)
-      showToast(err.message || "Error creating task", "error");
+      showToast(err.message, "error");
     }
 
     throw err; // lo relanzamos por si se quiere manejar en otro lado

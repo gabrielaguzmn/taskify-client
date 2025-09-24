@@ -12,8 +12,6 @@ import '../styles/changePassword.css'
 import '../styles/recover.css'
 import '../styles/register.css'
 
-
-
 const app = document.getElementById("app");
 
 /**
@@ -44,10 +42,10 @@ async function loadView(name) {
     if (imgEl) imgEl.src = logo;
   }
 
-  // if (name === "login") {
-  //   const imgEl = document.getElementById("registerLogo");
-  //   if (imgEl) imgEl.src = logo;
-  // }
+  if (name === "login") {
+    const imgEl = document.getElementById("registerLogo");
+    if (imgEl) imgEl.src = logo;
+  }
 
    if (name === "about") {
     const imgEl = document.getElementById("registerLogo");
@@ -55,10 +53,10 @@ async function loadView(name) {
   }
 
 
-  // if (name === "register") {
-  //   const imgEl = document.getElementById("registerLogo");
-  //   if (imgEl) imgEl.src = logo;
-  // }
+  if (name === "register") {
+    const imgEl = document.getElementById("registerLogo");
+    if (imgEl) imgEl.src = logo;
+  }
 
   if (name === "home") initHome();
   if (name === "login") initLogin();
@@ -117,7 +115,7 @@ function handleRoute() {
     isAuthenticated().then((loggedIn) => {
       hideSpinner();
       if (!loggedIn) {
-        showToast("Please log in to access this feature", "error");
+        showToast("Inicia sesión para acceder a esta función", "error");
         setTimeout(() => {
           location.hash = "#/login";
         }, 1000);
@@ -126,7 +124,7 @@ function handleRoute() {
       continueToLoadView();
     }).catch((error) => {
       hideSpinner();
-      showToast("Authentication error. Please log in again.", "error");
+      showToast("Error de autenticacion. Inicia sesión de nuevo", "error");
       setTimeout(() => {
         location.hash = "#/login";
       }, 1000);
@@ -232,7 +230,7 @@ let token = null;
 
   // Check if token exists
   if (!token) {
-    showMessage('Invalid or missing reset token. Please request a new password reset.', 'error');
+    showMessage('Token invalido. Por favor solicita un nuevo cambio de contraseña', 'error');
     if (acceptBtn) acceptBtn.disabled = true;
     return;
   }
@@ -260,7 +258,7 @@ let token = null;
     } else {
       acceptBtn.disabled = true;
       if (newPassword.length > 0 && confirmPassword.length > 0 && newPassword !== confirmPassword) {
-        showMessage('Passwords do not match', 'error');
+        showMessage('Las contraseñas ingresadas no coinciden', 'error');
       }
       return false;
     }
@@ -276,21 +274,21 @@ let token = null;
       e.preventDefault();
 
       if (!validateForm()) {
-        showMessage('Passwords must be at least 8 characters and match', 'error');
+        showMessage('Las contraseñas deben de tener 8 caracteres minimo y deben de coincidir', 'error');
         return;
       }
 
       const newPassword = newPasswordInput.value;
       
       acceptBtn.disabled = true;
-      acceptBtn.textContent = 'Resetting...';
-      showMessage('Resetting password...', 'loading');
+      acceptBtn.textContent = 'Cambiando contraseña...';
+      showMessage('Cambiando contraseña....', 'loading');
 
       try {
         showSpinner();
         
         const result = await resetPassword(token, newPassword);
-        showMessage('Password reset successfully! Redirecting to login...', 'success');
+        showMessage('Contraseña actualizada correctamente! Redirigiendo a login...', 'success');
         
         setTimeout(() => {
           location.hash = '#/login';
@@ -299,7 +297,7 @@ let token = null;
       } catch (error) {
         showMessage(error.message, 'error');
         acceptBtn.disabled = false;
-        acceptBtn.textContent = 'Accept';
+        acceptBtn.textContent = 'Aceptar';
       } finally {
         hideSpinner();
       }
@@ -597,7 +595,7 @@ if (profileBtn) {
   const inputs = form.querySelectorAll("input, select");
   inputs.forEach(input => {
     input.addEventListener("input", () => {
-      if (msg) { // ✅ Add safety check
+      if (msg) { 
         msg.textContent = "";
         msg.className = "feedback";
       }
@@ -605,14 +603,19 @@ if (profileBtn) {
   });
 
   const renderTask = (task) => {
+    const isoDate = task.date
+    const date = isoDate.substring(0,10)
+    const hour = isoDate.substring(11,19)
+    // Extraer fecha y hora de tarea
     const taskCard = document.createElement("div");
     taskCard.className = "task-card";
+    taskCard.setAttribute("data-id", task._id);
     taskCard.innerHTML = `
       <h3>${task.title || "Untitled Task"}</h3>
       <p>${task.description || "No description"}</p>
       <div class="meta">
-        <span>📅 ${task.date}</span>
-        <span>⏰ ${task.time}</span>
+        <span>📅 ${date}</span>
+        <span>⏰ ${hour}</span>
       </div>
       <div class="actions">
         <button class="edit">✏️</button>
@@ -627,7 +630,7 @@ if (profileBtn) {
 
   
     if (editButton) {
-      
+      console.log("click edit view")
       editButton.addEventListener("click", () => {
       taskId = task._id; 
       document.getElementById("title").value = task.title || "";
@@ -695,7 +698,8 @@ if (profileBtn) {
     console.log("Taskid: ", taskId);
     deleteTasks(taskId);
     toggleDelete(false);
-    renderTask(savedTask);
+    document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
+    //renderTask(savedTask);
   });
 
 
@@ -716,7 +720,7 @@ if (profileBtn) {
       const minute = document.getElementById("minute").value.padStart(2, "0");
 
       if (!day || !month || !year) {
-        alert("Please fill in all date fields (day, month, year)");
+        showToast("Por favor llena todos los campos", "error");
         return;
       }
 
@@ -734,8 +738,6 @@ if (profileBtn) {
         title: document.getElementById("title").value.trim(),
         description: document.getElementById("description").value.trim(),
         date: combinedDate,
-        dateString,
-        timeString,
         status: document.getElementById("status").value,
         userId: currentUserId
       };
@@ -755,6 +757,7 @@ if (profileBtn) {
           if (taskId) {
             // --- Update existing task ---
             savedTask = await editTask(TaskDataEdit);
+            console.log("Task id: ", taskId)
             document.querySelector(`.task-card[data-id="${taskId}"]`)?.remove();
             taskId = null; // Reset after editing
         // Opcional: eliminar tarjeta vieja y renderizar nueva
@@ -765,17 +768,13 @@ if (profileBtn) {
             savedTask = await createTask(TaskData);
         }
       
-      
-      // --- Toggle modalDelete---
-      
-    
-
       renderTask(savedTask);
       form.reset();
       toggle(false);
 
     } catch (err) {
-      alert(`Error creating task: ${err.message}`);
+            console.error("The following error has happened:",err)
+
     } finally {
       hideSpinner();
     }
@@ -790,9 +789,9 @@ function initProfile() {
     try {
   const userInfo = await getMyInformation()
       document.getElementById("profileName").textContent = userInfo.name || "";
-  document.getElementById("profileLastName").textContent = userInfo.lastName || "";
-  document.getElementById("profileEmail").textContent = userInfo.email || "";
-  document.getElementById("profileAge").textContent = userInfo.age || "";
+      document.getElementById("profileLastName").textContent = userInfo.lastName || "";
+      document.getElementById("profileEmail").textContent = userInfo.email || "";
+      document.getElementById("profileAge").textContent = userInfo.age || "";
 
     }
     catch(error) {
@@ -831,7 +830,7 @@ function initProfileEdit() {
   
     }
     catch(error) {
-      showToast("Error loading profile data", "error");
+      showToast("Error recuperando tu informacion personal", "error");
 
     }
   })()
@@ -866,12 +865,12 @@ function initProfileEdit() {
       msg.textContent = "Perfil actualizado!";
       msg.className = "feedback success";
 
-      showToast("Profile updated successfully!", "success");
+      showToast("Perfil actualizado exitosamente!", "success");
       setTimeout(() => (location.hash = "#/profile"), 800);
     } catch (err) {
       msg.textContent = err.message;
       msg.className = "feedback error";
-      showToast("Error updating profile", "error");
+      showToast("Error actualizando perfil", "error");
     }
   });
 }

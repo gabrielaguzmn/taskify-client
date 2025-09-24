@@ -21,7 +21,7 @@ export async function registerUser({ name, lastName, age, email, password }) {
   try {
     const response = await http.post("/api/users/register", { name, lastName, age, email, password });
 
-    showToast("Successfully created account", "success", 5000);
+    showToast("Cuenta creada exitosamente!", "success", 5000);
 
     setTimeout(() => {
       location.hash = "#/login";
@@ -29,7 +29,7 @@ export async function registerUser({ name, lastName, age, email, password }) {
 
     return response;
   } catch (err) {
-        showToast("Error creating account", "error");
+        showToast("Error creando cuenta", "error");
 
     const status = err.response?.status;
     const backendMessage = err.response?.data?.message;
@@ -48,7 +48,7 @@ export async function resetPassword(token, newPassword) {
   try {
     const response = await http.put("/api/users/changePassword", { token, newPassword })
 
-    showToast("Successfully changed password", "success")
+    showToast("Cambio de contraseña exitoso", "success")
 
 
     setTimeout(() => {
@@ -57,7 +57,7 @@ export async function resetPassword(token, newPassword) {
 
     return response;
   } catch (err) {
-    showToast("Error changing password", "error");
+    showToast("Error cambiando contraseña", "error");
     throw err;
   }
 }
@@ -87,7 +87,7 @@ export async function loginUser({ email, password }) {
     const res = await http.post("/api/users/login", { email, password });
     if (res.token) {
 
-        showToast("Successfully logged in", "success", 5000);
+        showToast("Inicio de sesión exitoso", "success", 5000);
         return res;
       } else {
       throw new Error("No token received from server");
@@ -120,7 +120,6 @@ export async function updateUser(userId, userData) {
 
     const response = await http.put("/api/users/me", updatePayload);
     
-    showToast("User updated successfully", "success");
     return response;
 
   } catch (error) {
@@ -144,7 +143,7 @@ export async function recoverPassword({ email }) {
   try {
     const response = await http.post("/api/users/recover", { email });
 
-    showToast("Check your email to continue", "success");
+    showToast("Revisa tu email para continuar", "success");
     console.log(response)
     return response;
   } catch (err) {
@@ -153,7 +152,7 @@ export async function recoverPassword({ email }) {
       showToast("Intenta de nuevo más tarde", "error");
     } else {
       // Error específico desde el backend
-      showToast(err.message || "Error requesting recovery", "error");
+      showToast(err.message, "error");
     }
 
     throw err; // relanzamos por si se maneja más arriba
@@ -173,12 +172,12 @@ export async function isAuthenticated() {
 export async function logoutUser(){
   try {
     await http.post("/api/users/logout"); 
-    showToast("Successfully logged out", "success");
+    showToast("Sesión cerrada exitosamente!", "success");
     setTimeout(() => {
       window.location.hash = "#/login";
-    }, 3000);
+    }, 2000);
   } catch (err) {
-    showToast("Logout error", "error");
+    showToast("Error al cerrar sesión", "error");
     throw err;
   }
 }
