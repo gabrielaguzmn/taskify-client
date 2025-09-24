@@ -803,21 +803,27 @@ function initProfile() {
       location.hash = "#/profileEdit";
     });
   }
-
-  const deleteBtn = document.getElementById("deleteProfileBtn");
+ const deleteBtn = document.getElementById("deleteProfileBtn");
   const modal = document.getElementById("confirmDeleteModal");
   const confirmBtn = document.getElementById("confirmDeleteBtn");
   const cancelBtn = document.getElementById("cancelDeleteBtn");
 
+      const toggleDeleteModal = (show) => {
+    modal.classList.toggle("open", show);
+    modal.setAttribute("aria-hidden", show ? "false" : "true");
+    
+  };
+
   if (deleteBtn) {
     deleteBtn.addEventListener("click", () => {
-      modal.style.display = "flex"; // abrir modal
+      console.log("Delete button clicked")
+      toggleDeleteModal(true) // abrir modal
     });
   }
 
   if (cancelBtn) {
     cancelBtn.addEventListener("click", () => {
-      modal.style.display = "none"; // cerrar modal
+      toggleDeleteModal(false);
     });
   }
 
@@ -833,8 +839,7 @@ function initProfile() {
         console.error("Error al eliminar usuario:", err);
         showToast("No se pudo eliminar la cuenta", "error");
       } finally {
-        modal.style.display = "none"; // cerrar modal
-      }
+toggleDeleteModal(false)      }
     });
   }
 }
