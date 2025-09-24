@@ -6,6 +6,14 @@
  */
 
 import './styles/base.css';
+import './styles/about.css';
+import './styles/changePassword.css';
+import './styles/dashboard.css';
+import './styles/home.css';
+import './styles/login.css';
+import './styles/register.css';
+import './styles/profile.css'
+import './styles/recover.css';
 import { initRouter } from './routes/route.js';
 
 /**
