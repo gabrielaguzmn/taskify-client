@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Taskify - Home</title>
   <link rel="stylesheet" href="/src/styles/home.css">
+  <style>
+    /* Asegurar que el footer quede al fondo */
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    main {
+      flex: 1; /* empuja el footer hacia abajo */
+    }
+  </style>
 </head>
 <body>
   <!-- Header -->
@@ -34,43 +45,62 @@
       </div>
     </div>
     <div class="home-right" aria-hidden="false">
-    <div class="card">
-      <picture>
-      <source srcset="/src/assets/img/logoPI.jpg" type="image/jpg">
-      <img src="/src/assets/img/logoPI.jpg" alt="Taskify Logo" loading="lazy" width="400" height="400">
-      </picture>
+      <div class="card">
+        <picture>
+          <source srcset="/src/assets/img/logoPI.jpg" type="image/jpg">
+          <img src="/src/assets/img/logoPI.jpg" alt="Taskify Logo" loading="lazy" width="400" height="400">
+        </picture>
+      </div>
     </div>
   </main>
+
+  <!-- Footer -->
   <footer class="footer">
-  <div class="footer-container">
-    <div class="footer-logo">
-      <div class="logo-circle">
-        <img src="/src/assets/img/logoPI.jpg" alt="Taskify Logo" loading="lazy">
+    <div class="footer-container">
+      
+      <!-- Logo + descripción -->
+      <div class="footer-logo">
+        <div class="logo-circle">
+          <img src="/src/assets/img/logoPI.jpg" alt="Taskify Logo" loading="lazy">
+        </div>
+        <h3>Taskify</h3>
+        <p>Organiza tus tareas de manera simple y eficaz.</p>
       </div>
-      <h3>Taskify</h3>
-      <p>Organiza tus tareas de manera simple y eficaz.</p>
-    </div>
-    <div class="footer-sitemap">
-      <h4>Mapa del Sitio</h4>
-      <div class="sitemap-columns">
-        <ul>
-          <li><a href="#/" class="active">Inicio</a></li>
-          <li><a href="#/login">Iniciar Sesión</a></li>
-          <li><a href="#/dashboard">Tablero de control</a></li>
-          <li><a href="#/add-task">Añadir tareas</a></li>
-        </ul>
-        <ul>
-          <li><a href="#/edit-task">Editar tareas</a></li>
-          <li><a href="#/recover-password">Recuperar contraseña</a></li>
-          <li><a href="#/change-password">Cambiar contraseña</a></li>
-          <li><a href="#/signup">Registrarte</a></li>
-        </ul>
+
+      <!-- Mapa del sitio -->
+      <div class="footer-sitemap">
+        <h4>Mapa del Sitio</h4>
+        <div class="sitemap-columns">
+          <ul>
+            <li><a href="#/" class="active">Inicio</a></li>
+            <li><a href="#/login">Iniciar Sesión</a></li>
+            <li><a href="#/dashboard">Tablero de control</a></li>
+            <li><a href="#/add-task">Añadir tareas</a></li>
+          </ul>
+          <ul>
+            <li><a href="#/edit-task">Editar tareas</a></li>
+            <li><a href="#/recover-password">Recuperar contraseña</a></li>
+            <li><a href="#/change-password">Cambiar contraseña</a></li>
+            <li><a href="#/signup">Registrarte</a></li>
+          </ul>
+        </div>
       </div>
+
+      <!-- Redes sociales -->
+      <div class="footer-socials">
+        <h4>Síguenos</h4>
+        <div class="social-icons">
+          <a href="#" class="icon">F</a>
+          <a href="#" class="icon">T</a>
+          <a href="#" class="icon">I</a>
+        </div>
+      </div>
+
     </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© 2025 Taskify. Todos los derechos reservados.</p>
-  </div>
-</footer>
+
+    <div class="footer-bottom">
+      <p>© 2025 Taskify. Todos los derechos reservados.</p>
+    </div>
+  </footer>
 </body>
 </html>
