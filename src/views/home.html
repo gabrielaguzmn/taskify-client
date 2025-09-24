@@ -6,17 +6,22 @@
   <title>Taskify - Home</title>
   <link rel="stylesheet" href="/src/styles/home.css">
   <style>
+    /* El body debe estirarse como mínimo al viewport */
     body {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
       margin: 0;
     }
+
+    /* El contenido principal empuja el footer hacia abajo */
     main {
-      flex: 1; /* hace que el footer quede abajo */
+      flex: 1;
     }
+
+    /* El footer siempre ocupa todo el ancho */
     footer {
-      width: 100%; /* ocupa todo el ancho */
+      width: 100%;
     }
   </style>
 </head>
@@ -91,4 +96,3 @@
   </footer>
 </body>
 </html>
-
