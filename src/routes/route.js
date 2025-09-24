@@ -807,12 +807,18 @@ function initProfile() {
   const modal = document.getElementById("confirmDeleteModal");
   const confirmBtn = document.getElementById("confirmDeleteBtn");
   const cancelBtn = document.getElementById("cancelDeleteBtn");
+  const closeModalDelete = document.getElementById("closeModalDelete")
 
       const toggleDeleteModal = (show) => {
     modal.classList.toggle("open", show);
     modal.setAttribute("aria-hidden", show ? "false" : "true");
     
   };
+  if (closeModalDelete){
+    closeModalDelete.addEventListener("click", ()=>{
+      toggleDeleteModal(false)
+    })
+  }
 
   if (deleteBtn) {
     deleteBtn.addEventListener("click", () => {
