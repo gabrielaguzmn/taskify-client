@@ -25,7 +25,7 @@
   </div>
 
   <!-- Modal de confirmación (fuera del contenedor) -->
-  <div id="confirmDeleteModal" class="overlay" aria-hidden="true">
+  <!-- <div id="confirmDeleteModal" class="overlay" aria-hidden="true">
     <div class="modal-box">
       <h3>¿Eliminar cuenta?</h3>
       <p>⚠️ Esta acción eliminará tu cuenta y todas tus tareas. No se puede deshacer.</p>
@@ -34,6 +34,22 @@
         <button id="confirmDeleteBtn" class="btn danger">Eliminar</button>
       </div>
     </div>
+  </div> -->
+
+  <div id="confirmDeleteModal" class="overlay" aria-hidden="true">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <header class="modal-header">
+      <h2 id="confirmTitle">¿Estas seguro?</h2>
+      <button id="closeModalDelete" class="icon-btn" aria-label="Close">&times;</button>
+    </header>
+    <div class="modal-body">
+      <div class="actions">
+        <p>⚠️ Esta acción eliminará tu cuenta y todas tus tareas. No se puede deshacer.</p>
+        <button id="cancelDeleteBtn" class="btn-secondary">Cancelar</button>
+        <button id="confirmDeleteBtn" class="btn danger">Eliminar</button>
+      </div>
+    </div>
+  </section>
   </div>
 </body>
 </html>
