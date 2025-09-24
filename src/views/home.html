@@ -6,15 +6,16 @@
   <title>Taskify - Home</title>
   <link rel="stylesheet" href="/src/styles/home.css">
   <style>
-    /* Asegurar que el footer quede al fondo */
     body {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      margin: 0;
     }
     main {
-      flex: 1; /* empuja el footer hacia abajo */
+      flex: 1; /* hace que el footer quede abajo */
     }
+    
   </style>
 </head>
 <body>
@@ -57,8 +58,6 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-container">
-      
-      <!-- Logo + descripción -->
       <div class="footer-logo">
         <div class="logo-circle">
           <img src="/src/assets/img/logoPI.jpg" alt="Taskify Logo" loading="lazy">
@@ -66,8 +65,6 @@
         <h3>Taskify</h3>
         <p>Organiza tus tareas de manera simple y eficaz.</p>
       </div>
-
-      <!-- Mapa del sitio -->
       <div class="footer-sitemap">
         <h4>Mapa del Sitio</h4>
         <div class="sitemap-columns">
@@ -85,19 +82,7 @@
           </ul>
         </div>
       </div>
-
-      <!-- Redes sociales -->
-      <div class="footer-socials">
-        <h4>Síguenos</h4>
-        <div class="social-icons">
-          <a href="#" class="icon">F</a>
-          <a href="#" class="icon">T</a>
-          <a href="#" class="icon">I</a>
-        </div>
-      </div>
-
     </div>
-
     <div class="footer-bottom">
       <p>© 2025 Taskify. Todos los derechos reservados.</p>
     </div>
