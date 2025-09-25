@@ -4,7 +4,7 @@ import { showToast } from "../services/toastService.js";
 import { isAuthenticated } from "../services/userService.js";
 import { http } from "../api/http.js";
 
-import logo from "../../public/logo.png";
+import logo from "../assets/img/logo.png";
 
 import '../styles/login.css';
 import '../styles/dashboard.css';

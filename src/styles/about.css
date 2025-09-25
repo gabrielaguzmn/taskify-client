@@ -51,14 +51,14 @@ body {
 
 /* Botón volver */
 .back-btn {
-  margin-top: 22px;
-  padding: 12px 28px;
+  margin-top: 30px;
+  padding: 30px 100px;
   background: #26A62F; 
   border: none;
   border-radius: 25px;
   cursor: pointer;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 100;
   color: #fff;
   transition: background 0.3s, transform 0.2s;
   box-shadow: 0 4px 10px rgba(38,166,47,0.4);

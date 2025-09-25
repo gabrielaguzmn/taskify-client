@@ -3,56 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up</title>
+  <title>Registrarse</title>
   <link rel="stylesheet" href="/src/styles/register.css">
+  <!-- Usa el mismo CSS del footer -->
+  <link rel="stylesheet" href="/src/styles/home.css">
 </head>
 <body>
-  <div class="frame">
-    <div class="auth-shell">
-    
-      <section class="panel-form">
-        <h2>Registrate</h2>
+  <div class="register-layout">
 
-        <form id="registerForm">
-          <div class="field">
-            <input type="text" id="name" placeholder="Nombre" required>
-          </div>
-          <div class="field">
-            <input type="text" id="lastName" placeholder="Apellidos" required>
-          </div>
-          <div class="field">
-            <input type="number" id="age" placeholder="Edad" min="0" max="90" required>
-          </div>
-          <div class="field">
-            <input type="email" id="email" placeholder="Email" required>
-          </div>
-          <div class="field">
-            <input type="password" id="password" placeholder="Contraseña" required>
-          </div>
-          <div class="field">
-            <input type="password" id="confirm" placeholder="Confirmar contraseña" required>
-          </div>
+    <!-- Panel formulario -->
+    <section class="register-form">
+      <h2>Regístrate</h2>
 
-          <button type="submit" id="registerBtn" class="btn" disabled>Registrate</button>
-
-         <p id="registerMsg" class="feedback" aria-live=""></p>
-
-          <div class="links">
-            <a href="#/login">Volver a iniciar sesión</a>
-          </div>
-        </form>
-      </section>
-
-      
-      <aside class="panel-image">
-        
-        <div class="image-box">
-          
-           <img id="registerLogo" alt="Register side">
-        
+      <form id="registerForm">
+        <div class="field">
+          <input type="text" id="name" placeholder="Nombre" required>
         </div>
-      </aside>
-    </div>
+        <div class="field">
+          <input type="text" id="lastName" placeholder="Apellidos" required>
+        </div>
+        <div class="field">
+          <input type="number" id="age" placeholder="Edad" min="0" max="90" required>
+        </div>
+        <div class="field">
+          <input type="email" id="email" placeholder="Correo" required>
+        </div>
+        <div class="field">
+          <input type="password" id="password" placeholder="Contraseña" required>
+        </div>
+        <div class="field">
+          <input type="password" id="confirm" placeholder="Confirmar contraseña" required>
+        </div>
+
+        <button type="submit" id="registerBtn" class="btn" disabled>Registrarme</button>
+
+        <p id="registerMsg" class="feedback" aria-live=""></p>
+
+        <div class="links">
+          <a href="#/login">Volver a iniciar sesión</a>
+        </div>
+      </form>
+    </section>
+
+    <!-- Panel imagen -->
+    <aside class="register-image">
+      <img id="registerLogo" src="/src/assets/img/logo.png" alt="Logo Taskify">
+    </aside>
   </div>
+
+  <!-- ✅ Footer reutilizado -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-logo">
+        <div class="logo-circle">
+          <img src="/src/assets/img/logo.png" alt="Taskify Logo">
+        </div>
+        <h3>Taskify</h3>
+        <p>Organiza tus tareas de manera simple y eficaz.</p>
+      </div>
+      <div class="footer-sitemap">
+        <h4>Mapa del Sitio</h4>
+        <div class="sitemap-columns">
+          <ul>
+            <li><a href="#/">Inicio</a></li>
+            <li><a href="#/login">Iniciar Sesión</a></li>
+            <li><a href="#/dashboard">Tablero de control</a></li>
+            <li><a href="#/add-task">Añadir tareas</a></li>
+          </ul>
+          <ul>
+            <li><a href="#/edit-task">Editar tareas</a></li>
+            <li><a href="#/recover-password">Recuperar contraseña</a></li>
+            <li><a href="#/change-password">Cambiar contraseña</a></li>
+            <li><a href="#/register" class="active">Registrarte</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Taskify. Todos los derechos reservados.</p>
+    </div>
+  </footer>
 </body>
 </html>
