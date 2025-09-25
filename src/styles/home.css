@@ -4,7 +4,8 @@ body {
   background-color: #E9F2DF;
   color: #14401A;
   padding-top: 60px;
-  line-height: 1.6; 
+  line-height: 1.6;
+  display: contents; 
 }
 
 /* Navbar */
@@ -54,7 +55,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 80px 100px;
+  padding: 80px 250px;
   gap: 60px;
   min-height: calc(100vh - 120px); 
 }
@@ -162,7 +163,7 @@ body {
 
 .home-right {
   flex: 1;
-  display: flex;
+  display: contents;
   justify-content: center;
   align-items: center;
 }
@@ -221,7 +222,7 @@ body {
 .footer {
   background: linear-gradient(135deg, #0D2E13, #133D1A);
   color: #E9F2DF;
-  padding: 50px 20px 20px;
+  padding: 10px 15px 10px;
   font-family: 'Segoe UI', sans-serif;
   width: 100%;          /* siempre ocupa todo el ancho */
 }
