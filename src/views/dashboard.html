@@ -6,7 +6,10 @@
   <title>Dashboard</title>
   <link rel="stylesheet" href="/src/styles/dashboard.css" />
 </head>
-<body>  
+<body>
+  <div class="right-buttons-body">
+      <button id="openModal" class="btn-primary">+ Añadir tarea</button>
+    </div>  
   <header class="topbar topbar-main">
     <div class="left-buttons">
       <button id="profileBtn" class="btn-secondary">Perfil</button>
@@ -120,6 +123,36 @@
     </div>
   </section>
   </div>
-
+   <footer class="footer">
+  <div class="footer-container">
+    <div class="footer-logo">
+      <div class="logo-circle">
+        <img src="/public/logo.png" alt="Taskify Logo" loading="lazy">
+      </div>
+      <h3>Taskify</h3>
+      <p>Organiza tus tareas de manera simple y eficaz.</p>
+    </div>
+    <div class="footer-sitemap">
+      <h4>Mapa del Sitio</h4>
+      <div class="sitemap-columns">
+        <ul>
+          <li><a href="#/" class="active">Inicio</a></li>
+          <li><a href="#/login">Iniciar Sesión</a></li>
+          <li><a href="#/dashboard">Tablero de control</a></li>
+          <li><a href="#/add-task">Añadir tareas</a></li>
+        </ul>
+        <ul>
+          <li><a href="#/edit-task">Editar tareas</a></li>
+          <li><a href="#/recover-password">Recuperar contraseña</a></li>
+          <li><a href="#/change-password">Cambiar contraseña</a></li>
+          <li><a href="#/signup">Registrarte</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Taskify. Todos los derechos reservados.</p>
+  </div>
+</footer>
 </body>
 </html>

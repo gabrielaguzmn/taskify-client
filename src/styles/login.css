@@ -19,7 +19,7 @@ html, body {
 body {
   font-family: system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;
   background: var(--light-green);
-  display: flex;
+  display: contents;
   flex-direction: column;
   justify-content: space-between;
   min-height: 100vh;

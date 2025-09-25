@@ -23,6 +23,8 @@ body {
   background: var(--bg);
   font-family: 'Inter', Arial, sans-serif;
   color: var(--text);
+  display: contents;
+
 }
 
 /* 🔹 Topbar */
@@ -334,4 +336,3 @@ body {
     align-items: flex-start;
   }
 }
-
