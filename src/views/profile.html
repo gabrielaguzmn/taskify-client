@@ -9,6 +9,11 @@
 <body class="profile-page">
   <div class="frame">
     <section class="profile-container">
+      
+      <!-- Flechita circular para volver -->
+      <!-- ✅ clase corregida -->
+      <a href="#/dashboard" class="back-btn" title="Volver">←</a>
+
       <h2>Mi perfil</h2>
 
       <p><strong>Nombre:</strong> <span id="profileName"></span></p>
@@ -18,9 +23,27 @@
 
       <div class="actions">
         <button id="editProfileBtn" class="btn">Editar</button>
-        <a href="#/dashboard" class="btn-secondary">Volver</a>
+        <button id="deleteProfileBtn" class="btn-secondary">Eliminar</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal de confirmación -->
+  <div id="confirmDeleteModal" class="overlay" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <header class="modal-header">
+        <h2 id="confirmTitle">¿Estás seguro?</h2>
+        <button id="closeModalDelete" class="icon-btn" aria-label="Cerrar">&times;</button>
+      </header>
+      <div class="modal-body">
+        <p>⚠️ Esta acción eliminará tu cuenta y todas tus tareas. No se puede deshacer.</p>
+        <div class="modal-actions">
+          <button id="cancelDeleteBtn" class="btn-secondary">Cancelar</button>
+          <button id="confirmDeleteBtn" class="btn danger">Eliminar</button>
+        </div>
       </div>
     </section>
   </div>
 </body>
 </html>
+

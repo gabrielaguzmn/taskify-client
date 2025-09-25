@@ -6,12 +6,19 @@
   --radius: 18px;
 }
 
+/* Garantiza que el gradiente cubra toda la ventana como en register */
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
 /* Pantalla completa */
 body.profile-page,
 body.profile-edit-page {
   margin: 0;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   background: var(--bg);
   font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   display: flex;
@@ -32,6 +39,7 @@ body.profile-edit-page {
 /* Contenedor del perfil */
 .profile-container,
 .profile-edit-container {
+  position: relative; /* necesario para colocar la flecha dentro */
   background: rgba(0,0,0,0.3); /* contraste sobre el fondo */
   border-radius: var(--radius);
   padding: 40px;
@@ -44,7 +52,7 @@ body.profile-edit-page {
 
 .profile-container h2,
 .profile-edit-container h2 {
-  margin-top: 0;
+  margin-top: 10px;
   margin-bottom: 18px;
   font-size: 28px;
   font-weight: 700;
@@ -88,8 +96,8 @@ body.profile-edit-page {
 }
 .btn:hover { background: #3D7340; }
 .btn-secondary {
-  background: #E9F2DF;
-  color: var(--text);
+  background: #26A62F;
+  color: #fff;
   border: 1px solid #3D7340;
   border-radius: 12px;
   padding: 12px 18px;
@@ -98,23 +106,29 @@ body.profile-edit-page {
 }
 .btn-secondary:hover { background: #dce8dd; }
 
-/* Botón de flecha "Volver" */
+/* Botón de flecha circular "Volver" */
 .back-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 20px;
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  background: #26A62F;
+  color: #fff;
+  font-size: 18px;
   font-weight: bold;
-  padding: 0;
   text-decoration: none;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: background 0.3s, transform 0.2s;
 }
 
 .back-btn:hover {
-  background: #dce8dd;
-  transform: translateY(-2px);
+  background: #3D7340;
+  transform: scale(1.05);
 }
 
 /* Animación */
