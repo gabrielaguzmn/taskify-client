@@ -337,17 +337,6 @@ body {
   box-shadow: 0 0 0 3px rgba(38,166,47,0.2);
 }
 
-.footer {
-  background: var(--primary-dark);
-  color: var(--white);
-  text-align: center;
-  padding: 0% 16px;
-  width: 100%;
-  position: fixed;     /* Fijo en la parte inferior */
-  bottom: 0;           /* Pegado al borde inferior */
-  left: 0;
-  z-index: 10;        /* Debajo del botón flotante */
-}
 /* 🔹 Responsividad */
 @media (max-width: 1024px) {
   .board { grid-template-columns: repeat(2, 1fr); }
