@@ -222,7 +222,7 @@ body {
 .footer {
   background: linear-gradient(135deg, #0D2E13, #133D1A);
   color: #E9F2DF;
-  padding: 50px 20px 20px;
+  padding: 10px 10px 20px;
   font-family: 'Segoe UI', sans-serif;
   width: 100%;          /* siempre ocupa todo el ancho */
 }

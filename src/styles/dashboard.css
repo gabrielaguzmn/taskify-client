@@ -110,8 +110,8 @@ body {
 /* 🔹 Botón flotante (en desktop sobre la 3ra columna) */
 .floating-add {
   position: absolute;
-  top: clamp(140px, 20vw, 190px);
-  left: 64%;                 /* centrado hacia la tercera columna */
+  top: clamp(100px, 10vw, 100px);
+  left: 87%;                /* centrado hacia la tercera columna */
   transform: translateX(-50%);
   z-index: 100;
   background: var(--primary);

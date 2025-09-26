@@ -109,19 +109,20 @@ body.profile-edit-page {
 /* Botón de flecha circular "Volver" */
 .back-btn {
   position: absolute;
-  top: -20px;
-  left: -20px;
+  top: -15px;
   background: #26A62F;
   color: #fff;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: bold;
   text-decoration: none;
-  width: 42px;
-  height: 42px;
+  width: 32px;        /* ancho fijo */
+  height: 32px;       /* alto fijo */
+  padding: 0;   /* elimina relleno extra */
+  line-height: 32px;  /* centra el texto verticalmente */
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 50%;
+  border-radius: 50%; /* asegura círculo */
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   transition: background 0.3s, transform 0.2s;
 }
