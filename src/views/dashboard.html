@@ -15,28 +15,29 @@
     <h1 class="app-title">Taskify</h1>
 
     <div class="right-buttons">
-      <button id="openModal" class="btn-primary">+ Añadir tarea</button>
       <button id="logoutBtn" class="btn-secondary">Cerrar sesión</button>
     </div>
+    
   </header>
+
   <!-- Tablero principal -->
   <main class="board">
     <section class="column" id="todo-col">
-      <h2>TO DO</h2>
+      <h2>PENDIENTES</h2>
       <div class="task-list" id="todoList"></div>
     </section>
 
     <section class="column" id="doing-col">
-      <h2>DOING</h2>
+      <h2>EN PROCESO</h2>
       <div class="task-list" id="doingList"></div>
     </section>
 
     <section class="column" id="done-col">
-      <h2>DONE</h2>
+      <h2>COMPLETADAS</h2>
       <div class="task-list" id="doneList"></div>
     </section>
   </main>
-
+<button id="openModal" class="btn-primary floating-add">+ Añadir tarea</button>
   <!-- Modal -->
   <div id="taskModal" class="overlay" aria-hidden="true">
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -60,9 +61,9 @@
           <div class="field-row">
             <label for="status">Estado</label>
             <select id="status" name="status" class="select">
-              <option value="to do">To do</option>
-              <option value="doing">Doing</option>
-              <option value="done">Done</option>
+              <option value="to do">PENDIENTES</option>
+              <option value="doing">EN PROCESO</option>
+              <option value="done">COMPLETADAS</option>
             </select>
           </div>
 
@@ -120,6 +121,36 @@
     </div>
   </section>
   </div>
-
+  <footer class="footer">
+  <div class="footer-container">
+    <div class="footer-logo">
+      <div class="logo-circle">
+        <img src="/public/logo.png" alt="Taskify Logo" loading="lazy">
+      </div>
+      <h3>Taskify</h3>
+      <p>Organiza tus tareas de manera simple y eficaz.</p>
+    </div>
+    <div class="footer-sitemap">
+      <h4>Mapa del Sitio</h4>
+      <div class="sitemap-columns">
+        <ul>
+          <li><a href="#/" class="active">Inicio</a></li>
+          <li><a href="#/login">Iniciar Sesión</a></li>
+          <li><a href="#/dashboard">Tablero de control</a></li>
+          <li><a href="#/add-task">Añadir tareas</a></li>
+        </ul>
+        <ul>
+          <li><a href="#/edit-task">Editar tareas</a></li>
+          <li><a href="#/recover-password">Recuperar contraseña</a></li>
+          <li><a href="#/change-password">Cambiar contraseña</a></li>
+          <li><a href="#/signup">Registrarte</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Taskify. Todos los derechos reservados.</p>
+  </div>
+</footer>
 </body>
 </html>

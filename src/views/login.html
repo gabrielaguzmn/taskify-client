@@ -3,77 +3,75 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login</title>
+  <title>Iniciar Sesión</title>
   <link rel="stylesheet" href="/src/styles/login.css">
+  <!-- Usa el mismo CSS del footer -->
+  <link rel="stylesheet" href="/src/styles/home.css">
 </head>
 <body>
-  <div class="frame">
-    <div class="auth-shell">
-      
-      <aside class="panel-image">
-        <div class="image-box">
-          <img id="registerLogo" alt="Logo">
+  <div class="login-layout">
+
+    <!-- Panel formulario -->
+    <section class="login-form">
+      <h2>Iniciar Sesión</h2>
+
+      <form id="loginForm">
+        <div class="field">
+          <input type="email" id="email" placeholder="Correo" required />
         </div>
-      </aside>
+        <div class="field">
+          <input type="password" id="password" placeholder="Contraseña" required />
+        </div>
 
-      
-      <section class="panel-form">
-        <h2>Iniciar Sesión</h2>
+        <button type="submit" id="loginBtn" class="btn" disabled>Iniciar Sesión</button>
 
-        <form id="loginForm">
-          <div class="field">
-            <input type="email" id="email" placeholder="Email" required />
-          </div>
-          <div class="field">
-            <input type="password" id="password" placeholder="Contraseña" required />
-          </div>
+        <p id="loginMsg" class="feedback" aria-live=""></p>
 
-          <button type="submit" id="loginBtn" class="btn" disabled>Iniciar Sesión</button>
+        <div class="links">
+          <a href="#/recover">Olvidé mi contraseña</a>
+          <a href="#/register">¿No tienes cuenta? Regístrate</a>
+        </div>
+      </form>
+    </section>
 
-          <p id="loginMsg" class="feedback" aria-live=""></p>         
-
-          <div class="links">
-            <span><a href="#/recover">Olvide mi contraseña</a></span>
-            <span style="color:#6f6f6f">
-              ¿No tienes una cuenta?
-              <a href="#/register" style="color:#6f6f6f">Registrate aquí</a>
-            </span>
-          </div>
-        </form>
-      </section>
-    </div>
+    <!-- Panel imagen -->
+    <aside class="login-image">
+      <img id="loginLogo" src="/src/assets/img/logo.png" alt="Logo Taskify">
+    </aside>
   </div>
+
+  <!-- ✅ Footer reutilizado -->
   <footer class="footer">
-  <div class="footer-container">
-    <div class="footer-logo">
-      <div class="logo-circle">
-        <img src="/src/assets/img/logoPI.jpg" alt="Taskify Logo" loading="lazy">
+    <div class="footer-container">
+      <div class="footer-logo">
+        <div class="logo-circle">
+          <img src="/src/assets/img/logo.png" alt="Taskify Logo">
+        </div>
+        <h3>Taskify</h3>
+        <p>Organiza tus tareas de manera simple y eficaz.</p>
       </div>
-      <h3>Taskify</h3>
-      <p>Organiza tus tareas de manera simple y eficaz.</p>
-    </div>
-    <div class="footer-sitemap">
-      <h4>Mapa del Sitio</h4>
-      <div class="sitemap-columns">
-        <ul>
-          <li><a href="#/">Inicio</a></li>
-          <li><a href="#/login" class="active">Iniciar Sesión</a></li>
-          <li><a href="#/dashboard">Tablero de control</a></li>
-          <li><a href="#/add-task">Añadir tarea</a></li>
-        </ul>
-        <ul>
-          <li><a href="#/edit-task">Editar tarea</a></li>
-          <li><a href="#/recover-password">Recuperar contraseña</a></li>
-          <li><a href="#/change-password">Cambiar contraseña</a></li>
-          <li><a href="#/signup">Registrarte</a></li>
-        </ul>
+      <div class="footer-sitemap">
+        <h4>Mapa del Sitio</h4>
+        <div class="sitemap-columns">
+          <ul>
+            <li><a href="#/">Inicio</a></li>
+            <li><a href="#/login" class="active">Iniciar Sesión</a></li>
+            <li><a href="#/dashboard">Tablero de control</a></li>
+            <li><a href="#/add-task">Añadir tareas</a></li>
+          </ul>
+          <ul>
+            <li><a href="#/edit-task">Editar tareas</a></li>
+            <li><a href="#/recover-password">Recuperar contraseña</a></li>
+            <li><a href="#/change-password">Cambiar contraseña</a></li>
+            <li><a href="#/register">Registrarte</a></li>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© 2025 Taskify. Todos los derechos reservados.</p>
-  </div>
-</footer>
+    <div class="footer-bottom">
+      <p>© 2025 Taskify. Todos los derechos reservados.</p>
+    </div>
+  </footer>
 </body>
-
 </html>
+
